@@ -10,7 +10,7 @@
 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/header/header--wayscriber--desktop-whiteboard-write-on-screen-keyboard-keypad-shortcut.jpg" alt="wayscriber-numpad header banner: writing on the desktop with number pad shortcuts">
+  <picture><img src="https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/header/header--wayscriber--desktop-whiteboard-write-on-screen-keyboard-keypad-shortcut.jpg" alt="wayscriber-numpad header banner: writing on the desktop with number pad shortcuts"></picture>
 </p>
 
 <p align="center">
@@ -89,8 +89,9 @@ cd wayscriber-numpad
 ```
 
 Run it as your normal user, from a terminal inside your Plasma session.
-It asks for sudo itself where needed, and refuses to run as root or from
-`su`, `sudo` or `ssh`.
+It asks for sudo itself where needed. It refuses to run as root, or where
+it can't reach your systemd user session (for example under `su` or
+`sudo`).
 
 Install lists every step it will take and asks before doing anything. To
 see the list without changing anything:
@@ -251,8 +252,9 @@ turned off.
 
 Drawing Mode shows a popup when it turns on or off, or fails to start. To
 silence them, set `POPUPS=false` near the top of
-`~/.local/bin/wayscriber-numpad`. Install never overwrites that file once it
-exists, so the change stays.
+`~/.local/bin/wayscriber-numpad`. Install leaves that file alone while the
+Drawing Mode app is complete. If the app's service or menu entry goes
+missing, install rewrites all three and the change is lost.
 
 The popups need the `notify-send` command, which install does not add. If
 no popups appear, install it: `libnotify-bin` on Debian and Ubuntu,
@@ -339,8 +341,9 @@ journalctl --user -u wayscriber-numpad.service -n 30
 
 - Check that Num Lock is on.
 - Press **1** first. Most keys only act while the drawing layer shows.
-- Run `sudo keyd monitor` and press the keys. It should print `kp0` to
-  `kp9`. If it doesn't, keyd can't see your keyboard.
+- Run `sudo keyd monitor` (`sudo keyd.rvaiya monitor` on Debian and
+  Ubuntu) and press the keys. It should print `kp0` to `kp9`. If it
+  doesn't, keyd can't see your keyboard.
 
 
 * * *
