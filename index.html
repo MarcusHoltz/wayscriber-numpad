@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wayscriber-numpad: ten keys, every tool</title>
+<meta name="description" content="Numpad-driven tool switching for screen annotation on KDE Plasma (Wayland). Try the key map live, meet wayscriber (the Rust annotation engine underneath), then install in two commands.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='3' width='26' height='26' rx='6' fill='%231b1e24' stroke='%23303540' stroke-width='1.5'/%3E%3Ctext x='16' y='21.5' font-family='monospace' font-size='14' font-weight='700' fill='%23ff3b30' text-anchor='middle'%3E1%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============ base ============ */
+:root{
+  --bg:#0e0f12; --panel:#14161a; --panel2:#191c21;
+  --line:#24272d; --line2:#2f333b;
+  --ink:#eceef1; --sub:#a6abb4; --mut:#6f7580;
+  --red:#ff3b30;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,monospace;
+  --sans:'Space Grotesk','Segoe UI',sans-serif;
+  --sans-ws:'Inter','Cantarell','Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.7 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--red);color:#fff}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-thumb{background:#2a2d34;border-radius:6px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:var(--bg)}
+.wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+section{scroll-margin-top:84px}
+a{color:inherit}
+code,.mono{font-family:var(--mono)}
+code{font-size:.92em}
+.ic{font:500 12px var(--mono);background:#191c21;border:1px solid var(--line2);border-radius:6px;padding:2px 7px;color:#c9cdd4;white-space:nowrap}
+
+/* ============ header ============ */
+header{position:sticky;top:0;z-index:60;background:rgba(14,15,18,.84);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;gap:22px;height:56px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand svg{display:block}
+.brand span{font:600 12.5px var(--mono);letter-spacing:.08em;color:var(--ink)}
+nav{margin-left:auto;display:flex;gap:26px;align-items:center}
+nav a{font:600 10.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mut);text-decoration:none;transition:color .15s}
+nav a:hover{color:var(--ink)}
+.hd-tag{font:500 10px var(--mono);letter-spacing:.14em;color:#4a505b;border-left:1px solid var(--line);padding-left:22px}
+@media(max-width:860px){nav a.hdn{display:none}.hd-tag{display:none}}
+
+/* ============ hero ============ */
+.hero{padding:84px 0 96px}
+.hero-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:64px;align-items:end}
+.eyebrow{display:flex;align-items:center;gap:10px;font:600 10.5px var(--mono);letter-spacing:.2em;color:var(--mut);text-transform:uppercase;margin-bottom:30px}
+.eyebrow::before{content:'';width:9px;height:9px;background:var(--red);border-radius:2px}
+h1{font:700 clamp(44px,7.6vw,100px)/0.98 var(--sans);letter-spacing:-.03em}
+h1 .ul{position:relative;display:inline-block}
+h1 .ul svg{position:absolute;left:-1%;bottom:-.1em;width:103%;height:.22em;overflow:visible;transform:rotate(-.7deg)}
+h1 .ul path{fill:none;stroke:var(--red);stroke-width:6;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 1s cubic-bezier(.65,0,.25,1) .6s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+h1 .ol{color:#6a7078}
+@supports(-webkit-text-stroke:1px #000){h1 .ol{color:transparent;-webkit-text-stroke:1.6px #565d69}}
+.hero-sub{margin-top:34px;max-width:520px;color:var(--sub);font-size:16.5px}
+.hero-sub b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+.chips span{font:600 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mut);border:1px solid var(--line);border-radius:99px;padding:6px 12px}
+.hero-hint{margin-top:30px;font:500 11.5px var(--mono);color:var(--mut)}
+kbd{font:700 11px var(--mono);background:#1b1e24;border:1px solid #2c3037;border-bottom-width:2.5px;border-radius:6px;padding:2px 8px;color:var(--ink)}
+.hero-hint kbd{margin:0 2px}
+.hup{opacity:0;transform:translateY(16px);animation:hup .7s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes hup{to{opacity:1;transform:none}}
+
+/* terminal block */
+.term{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.term-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:6px}
+.dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid #3a3f48}
+.term-title{font:500 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.cmdgroup{padding-top:10px}
+.cline{display:flex;align-items:center;gap:10px;padding:3px 14px;font:500 12.5px var(--mono)}
+.cline .ps{color:var(--red);font-weight:700}
+.cline code{color:var(--ink)}
+.cnote{padding:2px 14px 10px 32px;font:400 11px/1.55 var(--mono);color:var(--mut)}
+.term-cap{padding:9px 14px;border-top:1px solid var(--line);font:400 10.5px var(--mono);color:#565c67}
+
+/* copy button */
+.copy{display:inline-flex;align-items:center;gap:6px;margin-left:auto;background:#191c21;border:1px solid var(--line2);color:var(--sub);font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:5px 9px;border-radius:7px;cursor:pointer;transition:.15s;flex:none}
+.copy:hover{color:var(--ink);border-color:#3d434d}
+.copy svg{width:12px;height:12px}
+.copy .ic-check{display:none}
+.copy.done .ic-check{display:block;color:var(--red)}
+.copy.done .ic-copy{display:none}
+.copy.done{color:var(--ink);border-color:rgba(255,59,48,.45)}
+
+/* ============ sections ============ */
+.sec{padding-top:92px}
+.sec-head{display:flex;align-items:baseline;gap:18px;border-top:1px solid var(--line);padding-top:20px;margin-bottom:42px;flex-wrap:wrap}
+.sec-idx{font:700 11px var(--mono);color:var(--red);letter-spacing:.16em}
+.sec-title{font:600 clamp(24px,3.4vw,32px)/1.1 var(--sans);letter-spacing:-.01em}
+.sec-note{margin-left:auto;font:500 11px var(--mono);color:var(--mut);letter-spacing:.06em}
+.lede{color:var(--sub);max-width:640px;font-size:15.5px;margin-bottom:44px}
+.lede b{color:var(--ink);font-weight:600}
+.lede kbd{margin:0 1px}
+.rv{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+
+/* ============ demo ============ */
+.demo-grid{display:grid;grid-template-columns:360px 1fr;gap:52px;align-items:start}
+.wire{display:flex;align-items:center;gap:11px;width:100%;padding:11px 14px;margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;cursor:pointer;font:500 11.5px var(--mono);color:var(--sub);text-align:left;transition:border-color .15s;flex-wrap:wrap}
+.wire:hover{border-color:#3d434d}
+.wire .w-led{width:8px;height:8px;border-radius:50%;background:var(--red);flex:none;box-shadow:0 0 9px rgba(255,59,48,.55);transition:.25s}
+.wire.off .w-led{background:#3a3f48;box-shadow:none}
+.wire .w-txt b{color:var(--ink)}
+.wire .w-cmd{margin-left:auto;font:600 10px var(--mono);color:var(--mut);letter-spacing:.02em;white-space:nowrap}
+.wire.off .w-cmd{color:#9aa1ac}
+.numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;user-select:none}
+.key{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:58px;border-radius:10px;background:#1b1e24;border:1px solid #2c3037;color:var(--ink);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 3px 0 #0a0b0e,0 7px 14px rgba(0,0,0,.35);cursor:pointer;font-family:var(--mono);-webkit-tap-highlight-color:transparent;transition:transform .06s ease,box-shadow .06s ease,border-color .15s}
+.key:hover{border-color:#3d434d}
+.key:active,.key.pressed{transform:translateY(3px);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 0 0 #0a0b0e,0 1px 3px rgba(0,0,0,.4)}
+.key .d{font:700 19px var(--mono)}
+.key .l{font:600 8px var(--mono);text-transform:uppercase;letter-spacing:.13em;color:var(--mut);opacity:.38;transition:opacity .25s,color .25s}
+.key.on .l{opacity:1;color:#8b929d}
+.numpad.armed .key .l{opacity:1;color:#9aa1ac}
+.key .led{position:absolute;bottom:7px;width:16px;height:3px;border-radius:2px;background:transparent;transition:background .2s}
+.key.active{border-color:#3d434d}
+.key.active .d{color:var(--kc,var(--red))}
+.key.active .l{opacity:1}
+.key.pulse .led{animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{background:transparent}50%{background:var(--red)}}
+.key.ghost{background:#14161a;border-color:#22252b;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 3px 0 #090a0c;cursor:default;opacity:.5}
+.key.ghost:hover{border-color:#22252b}
+.key.ghost .d{color:var(--mut);font-size:14px;font-weight:500}
+.readout{margin-top:18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font:500 12px/1.5 var(--mono);color:var(--sub);display:flex;align-items:center;gap:9px;min-height:43px}
+.readout .ps{color:var(--red);font-weight:700;flex:none}
+.readout b{color:var(--red);font-weight:700}
+.readout .tt{color:var(--ink)}
+.readout .dm{color:var(--mut)}
+.readout .caret{flex:none;width:7px;height:14px;background:var(--red);animation:caret 1.1s steps(2) infinite}
+@keyframes caret{50%{opacity:0}}
+.screen{background:#15171c;border:1px solid #2b2f36;border-radius:16px;padding:12px 12px 0;box-shadow:0 30px 60px -45px rgba(0,0,0,.9)}
+.display{position:relative;aspect-ratio:4/3;border-radius:9px;overflow:hidden;background:#e8e6e0;cursor:default;touch-action:none}
+.display.on{cursor:none}
+.display.on.dimmed{cursor:default}          /* light passthrough: you're driving the apps below */
+.display canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.display .ink{transition:opacity .3s}
+.display.dimmed .ink{opacity:.4}            /* KP8: ink dims…  */
+.display.dimmed .wsbar{pointer-events:none} /* …and clicks fall through, even to the toolbar */
+.display:not(.on):not(.dimmed) .ink{opacity:0} /* KP1 hides the whole overlay, ink included */
+.display.stopped .ink{opacity:0}            /* Drawing Mode off: wayscriber stopped, ink saved for next start */
+.badge{position:absolute;left:50%;bottom:6.5%;transform:translateX(-50%);background:rgba(14,15,18,.9);border:1px solid var(--line2);color:var(--sub);font:500 10.5px var(--mono);letter-spacing:.04em;padding:9px 16px;border-radius:99px;pointer-events:none;transition:opacity .2s;white-space:nowrap}
+.badge b{color:var(--red)}
+.display.on .badge{opacity:0}
+.chip{position:absolute;pointer-events:none;transform:translate(-50%,-50%);border-radius:50%;border:2px solid #fff;display:none;z-index:5;align-items:center;justify-content:center}
+.chip.pen::after{content:'';width:4px;height:4px;border-radius:50%;background:var(--cc,#fff)}
+.ripple{position:absolute;border:2px solid rgba(255,255,255,.8);border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);animation:rip .55s ease-out forwards;z-index:6}
+@keyframes rip{from{width:8px;height:8px;opacity:.9}to{width:54px;height:54px;opacity:0}}
+.bezel{display:flex;justify-content:space-between;align-items:center;height:44px;padding:0 10px}
+.bezel-l{font:500 9.5px var(--mono);letter-spacing:.16em;color:var(--mut);text-transform:uppercase}
+.bezel-r{display:flex;align-items:center;gap:8px}
+.bezel-r em{font:500 9px var(--mono);letter-spacing:.14em;color:#4a505b;font-style:normal;text-transform:uppercase}
+.led-dot{width:8px;height:8px;border-radius:50%;background:#2c3037;transition:background .25s}
+.screen.armed .led-dot{background:var(--red)}
+.wsbar{--u2:max(var(--u,7px),4.5px);position:absolute;top:calc(var(--u,7px)*3.4);left:calc(var(--u,7px)*3.4);display:none;align-items:center;gap:calc(var(--u2)*.9);padding:calc(var(--u2)*.8) calc(var(--u2)*1.1);background:#1d2026;border:1px solid #3a3f49;border-radius:calc(var(--u2)*1.1);box-shadow:0 calc(var(--u2)*1.4) calc(var(--u2)*3.5) rgba(12,14,18,.5);z-index:8;user-select:none;-webkit-user-select:none}
+.display.on .wsbar{display:flex;animation:barin .16s ease}
+@keyframes barin{from{opacity:0;transform:translateY(calc(var(--u2,7px)*-1))}to{opacity:1;transform:none}}
+.display.on .wsbar,.display.on .wsbar *{cursor:pointer}
+.tb{flex:none;width:calc(var(--u2)*4.6);height:calc(var(--u2)*4.6);display:grid;place-items:center;background:transparent;border:1px solid transparent;border-radius:calc(var(--u2)*.9);color:#9aa1ac;cursor:pointer;padding:0;transition:background .15s,color .15s,border-color .15s}
+.tb svg{width:calc(var(--u2)*2.5);height:calc(var(--u2)*2.5);stroke-width:1.8}
+.tb:hover{color:var(--ink);background:#262a31}
+.tb.on{color:#fff;background:#2a2f37;border-color:#3d434d}
+.tb:disabled{opacity:.32;cursor:default}
+.tb:disabled:hover{background:transparent;color:#9aa1ac}
+.cd{flex:none;width:calc(var(--u2)*2.7);height:calc(var(--u2)*2.7);border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;appearance:none;-webkit-appearance:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);transition:transform .15s,border-color .15s}
+.cd[data-tool="red"]{background:#ff0000}
+.cd[data-tool="blue"]{background:#0000ff}
+.cd[data-tool="dark"]{background:#222222}
+.cd:hover{transform:scale(1.12)}
+.cd.on{border-color:#fff}
+.dv{flex:none;width:1px;height:calc(var(--u2)*2.9);background:#343943}
+.fineprint{margin-top:34px;font:400 12.5px/1.9 var(--mono);color:var(--mut);max-width:780px}
+.fineprint b{color:#9aa1ac;font-weight:600}
+@media(max-width:960px){
+  .demo-grid{grid-template-columns:1fr;gap:40px}
+  .numpad,.wire{max-width:380px;margin-left:auto;margin-right:auto}
+  .readout{max-width:380px;margin-left:auto;margin-right:auto}
+}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:48px}}
+
+/* ============ key map ============ */
+.map-table{border-top:1px solid var(--line)}
+.map-head,.map-row{display:grid;grid-template-columns:64px 1.05fr 1fr auto;gap:22px;align-items:center}
+.map-head{padding:10px 10px;font:600 9.5px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.map-row{padding:15px 10px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
+.map-row:hover{background:#121419}
+.map-key{width:46px;height:42px;border-radius:9px;background:#1b1e24;border:1px solid #2c3037;box-shadow:0 2.5px 0 #0a0b0e;display:grid;place-items:center;font:700 17px var(--mono);color:var(--ink);transition:border-color .15s}
+.map-row:hover .map-key{border-color:#3d434d}
+.map-act{font:600 15.5px var(--sans)}
+.map-act small{display:block;font:400 11px var(--mono);color:var(--mut);margin-top:2px;letter-spacing:.02em}
+.map-det{font:500 12px var(--mono);color:var(--sub);display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.sw{width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);flex:none}
+.sw.er{background:transparent!important;border:1.5px dashed #8a8f98;box-shadow:none}
+.tag{font:700 8.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:4px 9px;border-radius:99px;border:1px solid;flex:none}
+.tag.keyd{color:var(--red);border-color:rgba(255,59,48,.38)}
+.tag.ov{color:var(--mut);border-color:var(--line2)}
+.try{opacity:0;color:var(--mut);transition:opacity .15s;display:inline-flex;width:14px;height:14px}
+.map-row:hover .try{opacity:1}
+.map-foot{margin-top:26px;color:var(--sub);font-size:14px;max-width:720px}
+.map-foot p{margin-bottom:10px;padding-left:18px;position:relative}
+.map-foot p::before{content:'-';position:absolute;left:0;color:var(--red)}
+@media(max-width:720px){
+  .map-head{display:none}
+  .map-row{grid-template-columns:52px 1fr auto;grid-template-rows:auto auto;row-gap:8px}
+  .map-det{grid-column:2/-1;grid-row:2}
+}
+
+/* ============ install ============ */
+.inst-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:56px;align-items:start}
+.subhead{font:600 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--mut);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.subhead::after{content:'';flex:1;height:1px;background:var(--line)}
+.pre{list-style:none;margin-bottom:38px}
+.pre li{display:flex;gap:12px;padding:10px 0;color:var(--sub);font-size:14.5px;line-height:1.6;align-items:flex-start}
+.pre svg{width:15px;height:15px;color:var(--red);flex:none;margin-top:4px}
+.steps .step{display:grid;grid-template-columns:52px 1fr;gap:18px;padding:19px 0;border-bottom:1px solid var(--line)}
+.step .n{font:700 12px var(--mono);color:var(--red);padding-top:3px}
+.step h4{font:600 15.5px var(--sans);margin-bottom:6px}
+.step p{font-size:14px;line-height:1.68;color:var(--sub)}
+.notes{display:grid;grid-template-columns:1.15fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:56px}
+.note{background:var(--panel);padding:26px 28px}
+.note h4{font:600 11px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+.note p{font-size:14px;line-height:1.7;color:var(--sub)}
+@media(max-width:960px){.inst-grid{grid-template-columns:1fr;gap:48px}.notes{grid-template-columns:1fr}}
+
+/* ============================================================
+   wayscriber zone: their palette, their typography
+   ============================================================ */
+.sec--ws{
+  --void:#060126; --void2:#08022e; --deep:#030085;
+  --wssurf:#03008529; --wssolid:#0a0430; --wssurf2:#03008547;
+  --wsline:#7e74e829; --wsline2:#8c82f052;
+  --pink:#f21d92; --magenta:#e031eb; --teal:#1bf2b5;
+  --paper:#ece8ff; --paper2:#a9a1dc; --paper3:#7d76b8;
+  position:relative;background:var(--void);color:var(--paper);
+  font-family:var(--sans-ws);
+  margin-top:92px;padding:88px 0 64px;
+}
+.sec--ws::before{content:'';position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(900px 460px at 78% -6%, rgba(3,0,133,.55), transparent 65%),
+  radial-gradient(720px 420px at 6% 34%, rgba(3,0,133,.3), transparent 62%)}
+.sec--ws>.wrap{position:relative;z-index:1}
+.sec--ws ::selection{background:#e031eb80;color:#fff}
+.sec--ws :focus-visible{outline-color:var(--teal)}
+.sec--ws .sec-head{border-top-color:var(--wsline)}
+.sec--ws .sec-idx{color:var(--teal)}
+.sec--ws .sec-title{font-family:var(--mono);text-transform:lowercase;letter-spacing:-.03em;color:var(--paper)}
+.sec--ws .sec-note{color:var(--paper3)}
+.sec--ws .lede{color:var(--paper2)}
+.sec--ws .lede b{color:var(--paper)}
+.sec--ws a{color:var(--teal);text-decoration:underline;text-decoration-color:rgba(27,242,181,.35);text-underline-offset:3px}
+.sec--ws a:hover{text-decoration-color:var(--teal)}
+.sec--ws .ic{background:var(--wssolid);border-color:var(--wsline2);color:#cfc9f2}
+.sec--ws kbd{background:var(--wssurf2);border:1px solid var(--wsline2);border-bottom-width:2px;color:var(--paper);font-size:10px}
+.sec--ws .subhead{color:var(--paper3)}
+.sec--ws .subhead::after{background:var(--wsline)}
+.ws-src{margin:-26px 0 40px;font:500 12px var(--mono);color:var(--paper3)}
+.ws-block{margin-bottom:76px}
+.ws-block-head{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+.ws-block-head h3{font:700 19px var(--mono);text-transform:lowercase;letter-spacing:-.02em;color:var(--paper)}
+.stack-hint,.ws-hint{margin-left:auto;font:500 10.5px var(--mono);color:var(--paper3);letter-spacing:.06em}
+
+/* stats strip: their numbers */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--wsline);border:1px solid var(--wsline);border-radius:14px;overflow:hidden;margin:44px 0 12px}
+.stat{background:var(--void2);padding:24px 22px 20px}
+.stat b{display:block;font:700 clamp(22px,2.6vw,30px)/1 var(--mono);color:var(--teal);letter-spacing:-.02em}
+.stat:nth-child(2) b{color:var(--magenta)}
+.stat span{display:block;font:500 11px var(--mono);color:var(--paper2);margin-top:9px;letter-spacing:.02em}
+.stat small{display:block;font:400 10.5px var(--mono);color:var(--paper3);margin-top:5px}
+@media(max-width:860px){.stats{grid-template-columns:1fr 1fr}}
+
+/* layer diagram */
+.modes{display:flex;gap:8px}
+.mode{font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;padding:7px 13px;border-radius:99px;border:1px solid var(--wsline2);background:transparent;color:var(--paper3);cursor:pointer;transition:.15s}
+.mode:hover{color:var(--paper)}
+.mode.active{color:#032018;background:var(--teal);border-color:var(--teal)}
+.stackbox{background:var(--wssolid);border:1px solid var(--wsline);border-radius:14px;padding:20px 16px 8px;cursor:pointer}
+.stackbox svg{width:100%;height:auto;display:block}
+.stack-cap{padding:12px 6px 10px;font:400 12px/1.75 var(--mono);color:var(--paper2);border-top:1px solid var(--wsline);margin-top:8px}
+.stack-cap b{color:var(--paper)}
+#mx,#ml{opacity:0;transition:opacity .3s}
+.stackbox[data-mode="x"] #mx,.stackbox[data-mode="l"] #ml{opacity:1}
+#mx .x-ink{stroke-dasharray:1;stroke-dashoffset:1}
+#mx.play .x-ink{animation:xink 1.7s ease 1.3s both}
+@keyframes xink{0%{stroke-dashoffset:1;opacity:0}10%{opacity:.9}55%{stroke-dashoffset:0;opacity:.9}100%{stroke-dashoffset:0;opacity:0}}
+#mx .x-ptr{opacity:0}
+#mx.play .x-ptr{animation:xptr 1.1s ease .1s both}
+@keyframes xptr{0%{transform:translate(640px,260px);opacity:0}20%{opacity:1}100%{transform:translate(300px,168px);opacity:1}}
+#mx .x-ring{opacity:0;transform:translate(300px,168px)}
+#mx.play .x-ring{animation:xring .9s ease 1.15s 2}
+@keyframes xring{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+#mx .x-link,#mx .x-cross,#mx .x-verdict{opacity:0}
+#mx.play .x-link{animation:xfade .4s ease 1.6s both}
+#mx.play .x-cross{animation:xfade .4s ease 1.75s both}
+#mx.play .x-verdict{animation:xfade .5s ease 2.3s both}
+@keyframes xfade{to{opacity:1}}
+#ml .l-ink1,#ml .l-ink2{stroke-dasharray:1;stroke-dashoffset:1}
+#ml.play .l-ink1{animation:svdraw 1.3s ease .5s both}
+#ml.play .l-ink2{animation:svdraw .7s ease 2.1s both}
+#ml .l-ptr{opacity:0}
+#ml.play .l-ptr{animation:lptr 3.4s ease-out .1s both}
+@keyframes lptr{
+ 0%{transform:translate(700px,300px);opacity:0}
+ 7%{opacity:1}
+ 15%{transform:translate(130px,172px)}
+ 40%{transform:translate(255px,140px)}
+ 62%{transform:translate(380px,158px)}
+ 84%{transform:translate(505px,120px)}
+ 96%{opacity:1}
+ 100%{transform:translate(640px,250px);opacity:0}
+}
+#ml .l-verdict{opacity:0}
+#ml.play .l-verdict{animation:xfade .5s ease 3s both}
+
+/* capability stage */
+.cap-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:start}
+.stagebox{background:var(--wssolid);border:1px solid var(--wsline2);border-radius:14px;padding:10px;box-shadow:0 24px 50px -42px rgba(0,0,0,.9)}
+#capSvg,#tlSvg{display:block;width:100%;height:auto}
+#tlSvg{margin-top:8px}
+.cap-read{margin-top:14px}
+.sec--ws .readout{background:var(--wssolid);border-color:var(--wsline);color:var(--paper2)}
+.sec--ws .readout .ps,.sec--ws .readout b{color:var(--teal)}
+.sec--ws .readout .tt{color:var(--paper)}
+.sec--ws .readout .dm{color:var(--paper3)}
+.sec--ws .caret{background:var(--teal)}
+.cap-list{list-style:none}
+.cap{display:grid;grid-template-columns:30px 1fr;gap:2px 14px;padding:14px 12px 14px 16px;border-bottom:1px solid var(--wsline);border-left:2px solid transparent;cursor:pointer;transition:background .15s,border-color .15s}
+.cap:hover,.cap.active{background:rgba(3,0,133,.22);border-left-color:var(--teal)}
+.cap>svg{width:15px;height:15px;color:var(--paper3);margin-top:4px;grid-row:1/3}
+.cap.active>svg{color:var(--teal)}
+.cap h4{font:600 13.5px var(--mono);text-transform:lowercase;letter-spacing:-.01em;color:var(--paper)}
+.cap p{font-size:12.5px;line-height:1.62;color:var(--paper2);grid-column:2}
+.kp-tag{font:700 8.5px var(--mono);letter-spacing:.12em;color:#29e6bd;border:1px solid rgba(27,242,181,.35);padding:2px 7px;border-radius:99px;margin-left:9px;vertical-align:2px;white-space:nowrap}
+
+/* scene animation primitives */
+.sv-t{font:500 10px var(--mono);letter-spacing:.1em;fill:#9aa1ac}
+.sv-t2{font:500 9px var(--mono);letter-spacing:.08em;fill:#6f7580}
+.sv-tb{font:700 11px var(--sans);fill:#232428}
+.dr{stroke-dasharray:1;stroke-dashoffset:1}
+.a-draw{animation:svdraw .8s ease both}
+.a-undraw{animation:svundraw .55s ease both}
+@keyframes svdraw{to{stroke-dashoffset:0}}
+@keyframes svundraw{from{stroke-dashoffset:0}to{stroke-dashoffset:1}}
+#sv-ink{transition:opacity .6s ease}
+#sv-ink.dim{opacity:.32}
+#sv-r{transition:stroke .35s ease,stroke-width .35s ease}
+#sv-eg{opacity:0}
+#sv-eg.wipe{animation:egmove 1.15s ease-in-out both}
+@keyframes egmove{0%{transform:translate(310px,164px);opacity:0}12%{opacity:1}85%{opacity:1}100%{transform:translate(106px,158px);opacity:0}}
+.p{animation:capP .45s ease}
+@keyframes capP{50%{transform:scale(1.35)}}
+@keyframes marchA{to{stroke-dashoffset:-16}}
+@keyframes marchB{to{stroke-dashoffset:-12}}
+#tr-bulb,#tr-cam,#hud-x3,#pal-hl{transform-box:fill-box;transform-origin:center}
+/* zoom */
+#sv-zoomwrap{transform-origin:200px 185px;transition:transform .75s cubic-bezier(.3,.85,.25,1)}
+#sv-zoomwrap.zoom{transform:scale(1.5)}
+#sv-zoomwrap.zoompan{transform:scale(1.5) translate(-26px,-16px)}
+#sv-zchip{opacity:0;transition:opacity .25s}
+#sv-zchip.in{opacity:1}
+/* boards */
+#sv-bg{transition:fill .4s}
+#sv-grid{opacity:0;transition:opacity .35s}
+#sv-grid.on{opacity:1}
+#sv-apps{transition:opacity .45s}
+#sv-boardchip{opacity:0;transition:opacity .3s}
+#sv-boardchip.in{opacity:1}
+/* shapes + selection */
+#sh-handles{opacity:0;transition:opacity .2s}
+#sh-rectg.sel #sh-handles{opacity:1}
+#sh-rectg.sel .sh-r{stroke:#1bf2b5}
+#sh-rectg{transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+#sh-rectg.moved{transform:translate(14px,-9px)}
+#sh-lab{opacity:0;transition:opacity .3s}
+#sh-lab.in{opacity:1}
+/* text + sticky */
+#t1,#t2,#tc{opacity:0;transition:opacity .3s}
+#t1.in,#t2.in,#tc.in{opacity:1}
+#tc.in{animation:blinkC 1.1s steps(2) infinite}
+@keyframes blinkC{50%{opacity:0}}
+#sv-sticky{opacity:0;transform:scale(.85) translateY(6px);transform-box:fill-box;transform-origin:center;transition:opacity .25s,transform .3s cubic-bezier(.2,.9,.3,1.3)}
+#sv-sticky.in{opacity:1;transform:none}
+/* radial menu */
+#sv-radial{opacity:0;transform:scale(.55);transform-box:fill-box;transform-origin:center;transition:opacity .18s ease,transform .22s cubic-bezier(.2,.9,.3,1.35)}
+#sv-radial.in{opacity:1;transform:scale(1)}
+#sv-radial.out{opacity:0;transform:scale(.72)}
+#sv-ring2{stroke-dasharray:3 7}
+#sv-ring2.spin{animation:marchA 1.2s linear infinite}
+#rg-pen circle{transition:stroke .15s}
+#rg-pen.on circle{stroke:#1bf2b5;stroke-width:2.5}
+#rg-pen.on path{stroke:#1bf2b5}
+#sv-rcursor{opacity:0}
+#sv-rcursor.run{animation:rcurs 2.5s ease .1s both}
+@keyframes rcurs{0%{transform:translate(470px,300px);opacity:0}10%{opacity:1}38%{transform:translate(300px,190px)}62%{transform:translate(338px,190px)}88%{opacity:1}100%{transform:translate(338px,190px);opacity:0}}
+/* command palette */
+#sv-pal{opacity:0;transform:translateY(-10px);transition:opacity .25s,transform .25s}
+#sv-pal.in{opacity:1;transform:none}
+#pal-hl{transition:opacity .2s}
+/* input hud */
+#hud-ctrl,#hud-plus,#hud-k,#hud-x3{opacity:0;transition:opacity .25s}
+#hud-ctrl.in,#hud-plus.in,#hud-k.in,#hud-x3.in{opacity:1}
+/* capture / ocr */
+#sv-marq,#sv-flash{opacity:0}
+#sv-shot,#sv-ocr,#sv-ocrlab{opacity:0;transition:opacity .3s}
+#sv-shot.in,#sv-ocr.in,#sv-ocrlab.in{opacity:1}
+#sv-ocr.in{animation:marchB 1.1s linear infinite}
+/* click ripples */
+.svrip{opacity:0;transform-box:fill-box;transform-origin:center}
+.svrip.go{animation:ripA .7s ease-out both}
+@keyframes ripA{0%{transform:scale(.25);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+/* timeline */
+#tl-ov1,#tl-ov2,#tl-note{opacity:0;transition:opacity .35s}
+#tl-bar.p{animation:tlp 1.6s ease}
+@keyframes tlp{45%{filter:brightness(1.9)}}
+
+/* also-in-the-box grid */
+.also{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.also>div{background:var(--wssurf);border:1px solid var(--wsline);border-radius:9px;padding:16px 18px}
+.also h4{font:600 12.5px var(--mono);text-transform:lowercase;letter-spacing:-.01em;color:var(--paper);margin-bottom:6px}
+.also p{font-size:12.5px;line-height:1.6;color:var(--paper2)}
+@media(max-width:860px){.also{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.also{grid-template-columns:1fr}}
+
+/* controls table */
+.ctrls{display:grid;grid-template-columns:1fr 1fr;gap:0 56px;border-top:1px solid var(--wsline)}
+.crow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 2px;border-bottom:1px solid var(--wsline);font-size:13px;color:var(--paper2)}
+.crow .keys{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.crow .keys i{font:600 10px var(--mono);color:var(--paper3);font-style:normal}
+.ctrl-note{margin-top:20px;font:400 12px/1.8 var(--mono);color:var(--paper3);max-width:680px}
+.ctrl-note b{color:var(--paper2)}
+@media(max-width:720px){.ctrls{grid-template-columns:1fr}}
+
+/* compatibility */
+.compat{display:grid;grid-template-columns:1.25fr .95fr .8fr;gap:10px}
+.comp{background:var(--wssurf);border:1px solid var(--wsline);border-radius:14px;padding:20px 22px}
+.comp h4{font:600 12px var(--mono);text-transform:lowercase;letter-spacing:-.01em;color:var(--paper);margin-bottom:10px;display:flex;align-items:center;gap:9px}
+.mk{font:700 13px var(--mono)}
+.mk.ok{color:var(--teal)}.mk.part{color:#e0c31b}.mk.no{color:var(--pink)}
+.comp p{font-size:12.5px;line-height:1.6;color:var(--paper2);margin-bottom:12px}
+.comp ul{list-style:none}
+.comp li{display:inline-block;margin:2px 3px 2px 0;font:500 11px var(--mono);color:var(--paper2);border:1px solid var(--wsline2);background:var(--wssurf);padding:3px 9px;border-radius:6px}
+.comp li.hot{color:var(--teal);border-color:rgba(27,242,181,.4)}
+@media(max-width:860px){.compat{grid-template-columns:1fr}}
+
+/* performance */
+.perf{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start}
+.perf p{font-size:14px;line-height:1.75;color:var(--paper2);margin-bottom:16px}
+.perf p b{color:var(--paper);font-weight:600}
+.perf-note{font:400 11.5px/1.7 var(--mono)!important;color:var(--paper3)!important}
+.wscode{background:var(--wssolid);border:1px solid var(--wsline2);border-radius:12px;overflow:hidden}
+.wscode-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--wsline);font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--paper3)}
+.sec--ws .copy{background:var(--wssurf2);border-color:var(--wsline2);color:var(--paper2)}
+.sec--ws .copy:hover{color:var(--paper);border-color:var(--teal)}
+.sec--ws .copy.done{border-color:rgba(27,242,181,.5)}
+.sec--ws .copy.done .ic-check{color:var(--teal)}
+.wscode pre{padding:16px;font:400 12px/1.7 var(--mono);color:#cfc9f2;overflow-x:auto}
+.wscode .c{color:var(--paper3)}.wscode .k{color:var(--paper)}.wscode .v{color:var(--teal)}
+.wscode-cap{padding:10px 14px;border-top:1px solid var(--wsline);font:400 10.5px/1.6 var(--mono);color:var(--paper3)}
+@media(max-width:860px){.perf{grid-template-columns:1fr}}
+
+/* ethos + bridge */
+.ethos{border-left:3px solid var(--magenta);padding:10px 0 10px 24px;margin:70px 0 10px;max-width:760px}
+.ethos p{font:500 17px/1.6 var(--mono);color:var(--paper);letter-spacing:-.01em}
+.ethos span{display:block;margin-top:12px;font-size:13px;line-height:1.7;color:var(--paper2)}
+.ws-bridge{margin-top:56px;font-size:14px;line-height:1.75;color:var(--paper2);max-width:720px}
+.ws-bridge b{color:var(--paper)}
+
+/* ============ troubleshooting ============ */
+.tr-row{display:grid;grid-template-columns:250px 1fr;gap:28px;padding:20px 0;border-bottom:1px solid var(--line)}
+.tr-row h4{font:600 15px var(--sans);padding-top:2px}
+.tr-row p{font-size:14px;line-height:1.75;color:var(--sub)}
+.tr-row p .ic{margin:0 2px}
+@media(max-width:720px){.tr-row{grid-template-columns:1fr;gap:8px}}
+
+/* ============ footer ============ */
+footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
+.ft{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;padding-bottom:56px}
+.mini-pad{display:flex;gap:6px;margin-bottom:22px}
+.mini-pad span{width:26px;height:24px;border-radius:6px;background:#17191e;border:1px solid #262a30;box-shadow:0 2px 0 #0a0b0e;display:grid;place-items:center;font:700 11px var(--mono);color:var(--mut)}
+.mini-pad span.r{color:var(--red);border-color:rgba(255,59,48,.35)}
+.mini-pad span.y{color:#1bf2b5;border-color:rgba(27,242,181,.35)}
+.ft-tag{font:500 13px/1.8 var(--mono);color:var(--sub);max-width:420px}
+.ft-tag b{color:var(--ink);font-weight:600}
+.ft-links{list-style:none}
+.ft-links li{margin-bottom:4px}
+.ft-links a{display:inline-flex;align-items:center;gap:9px;font:500 13px var(--mono);color:var(--sub);text-decoration:none;padding:7px 0;transition:color .15s}
+.ft-links a:hover{color:var(--ink)}
+.ft-links svg{width:13px;height:13px;color:var(--mut)}
+.ft-links small{color:var(--mut);font-size:11px}
+.ft-bar{border-top:1px solid var(--line);padding:22px 0 34px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font:400 11px var(--mono);color:#565c67;letter-spacing:.04em}
+@media(max-width:800px){.ft{grid-template-columns:1fr;gap:44px}}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,14px);background:#1a1d23;border:1px solid var(--line2);color:var(--ink);font:500 12px var(--mono);padding:12px 19px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:99;box-shadow:0 14px 34px rgba(0,0,0,.5);max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv,.hup{opacity:1;transform:none}
+  h1 .ul path{stroke-dashoffset:0}
+  .key.pulse .led{background:var(--red)}
+  .rm .dr{stroke-dashoffset:0!important}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <a class="brand" href="#top" aria-label="wayscriber-numpad">
+      <svg width="22" height="22" viewBox="0 0 32 32"><rect x="3" y="3" width="26" height="26" rx="6" fill="#1b1e24" stroke="#303540" stroke-width="1.5"/><text x="16" y="21.5" font-family="monospace" font-size="14" font-weight="700" fill="#ff3b30" text-anchor="middle">1</text></svg>
+      <span>wayscriber-numpad</span>
+    </a>
+    <nav>
+      <a class="hdn" href="#try">Try it</a>
+      <a class="hdn" href="#map">The map</a>
+      <a class="hdn" href="#wayscriber">wayscriber</a>
+      <a href="#install">Install</a>
+      <span class="hd-tag">wayland-native</span>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= hero ================= -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow hup" style="--d:.05s">numpad-driven annotation · KDE Plasma · Wayland</div>
+        <h1 class="hup" style="--d:.12s">Ten keys.<br>
+          <span class="ul">Every tool.<svg viewBox="0 0 300 30" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M4 20 C 62 4 128 30 190 14 C 232 4 262 10 288 18 C 296 21 297 25 291 23"/></svg></span><br>
+          <span class="ol">Zero menus.</span>
+        </h1>
+        <p class="hero-sub hup" style="--d:.2s">Numpad-driven tool switching for screen annotation on KDE Plasma (Wayland). <b>wayscriber does the drawing. Your numpad is the toolbox.</b> Turn on <b>Drawing Mode</b> from the app menu and KP1-KP0 become overlay, undo/redo, three pens, a highlighter, an eraser and a light passthrough; turn it off and they type digits again. Nothing is permanently remapped.</p>
+        <div class="chips hup" style="--d:.28s">
+          <span>Arch · Debian 13+ · Ubuntu 25.10+ · Fedora</span><span>Plasma · Wayland</span><span>Docker-built</span><span>No AUR</span>
+        </div>
+        <p class="hero-hint hup" style="--d:.34s">psst: the number keys on this page are already live. Try pressing <kbd>1</kbd>.</p>
+      </div>
+      <div class="hup" style="--d:.26s">
+        <div class="term">
+          <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span><span class="term-title">getting started, from the repo root</span></div>
+          <div class="cmdgroup">
+            <div class="cline"><span class="ps">$</span><code>./wayscriber.sh install</code>
+              <button class="copy" data-copy="./wayscriber.sh install"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div>
+            <div class="cnote">docker-built · no AUR · add --dry-run to preview every step first</div>
+          </div>
+          <div class="cmdgroup">
+            <div class="cline"><span class="ps">$</span><code>./wayscriber.sh start</code>
+              <button class="copy" data-copy="./wayscriber.sh start"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div>
+            <div class="cnote">Drawing Mode on · or click Drawing Mode in the app menu, no terminal</div>
+          </div>
+          <div class="term-cap">arch, debian 13+ or fedora · plasma on a wayland session · docker compose</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= demo ================= -->
+  <section class="sec" id="try">
+    <div class="wrap">
+      <div class="sec-head rv"><span class="sec-idx">01</span><h2 class="sec-title">Play the whole thing.</h2><span class="sec-note">interactive, your real numpad works too</span></div>
+      <p class="lede rv" style="--d:.06s">This is the actual key map, wired to a fake Plasma desktop. Press <kbd>1</kbd> (the pulsing key, bottom-left of the pad) and the overlay appears: a toolbar in the screen's top-left, just like the real one, <b>and it's clickable</b>. Pick a tool, then draw with your mouse. <kbd>8</kbd> is light passthrough: the ink dims and clicks fall through to the apps below. <kbd>1</kbd> or <kbd>Esc</kbd> hides the whole overlay, ink and toolbar. The switch above the pad is <b>Drawing Mode</b> on / off (<code class="ic">start</code> / <code class="ic">stop</code>). Flip it to feel what it does.</p>
+
+      <div class="demo-grid rv" style="--d:.12s">
+        <div>
+          <button type="button" id="wireToggle" class="wire" aria-pressed="true">
+            <span class="w-led" aria-hidden="true"></span>
+            <span class="w-txt">Drawing Mode: <b>on</b></span>
+            <span class="w-cmd">$ ./wayscriber.sh stop</span>
+          </button>
+          <!-- a real numpad: NL / * − | 7 8 9 + | 4 5 6 + | 1 2 3 ⏎ | 0 0 . ⏎ -->
+          <div class="numpad" id="numpad" role="group" aria-label="interactive numpad">
+            <div class="key ghost" style="grid-area: 1 / 1" aria-hidden="true"><span class="d">NL</span></div>
+            <div class="key ghost" style="grid-area: 1 / 2" aria-hidden="true"><span class="d">/</span></div>
+            <div class="key ghost" style="grid-area: 1 / 3" aria-hidden="true"><span class="d">*</span></div>
+            <div class="key ghost" style="grid-area: 1 / 4" aria-hidden="true"><span class="d">−</span></div>
+
+            <button type="button" class="key" data-k="7" style="grid-area: 2 / 1" aria-label="KP7: clear canvas"><span class="d">7</span><span class="l">clear</span><span class="led"></span></button>
+            <button type="button" class="key on" data-k="8" style="grid-area: 2 / 2" aria-label="KP8: toggle light passthrough"><span class="d">8</span><span class="l">light</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="9" style="grid-area: 2 / 3" aria-label="KP9: red pen"><span class="d">9</span><span class="l">red pen</span><span class="led"></span></button>
+            <div class="key ghost" style="grid-area: 2 / 4 / 4 / 5" aria-hidden="true"><span class="d">+</span></div>
+
+            <button type="button" class="key" data-k="4" style="grid-area: 3 / 1" aria-label="KP4: dark pen"><span class="d">4</span><span class="l">dark pen</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="5" style="grid-area: 3 / 2" aria-label="KP5: highlighter"><span class="d">5</span><span class="l">highlighter</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="6" style="grid-area: 3 / 3" aria-label="KP6: eraser"><span class="d">6</span><span class="l">eraser</span><span class="led"></span></button>
+
+            <button type="button" class="key on pulse" data-k="1" style="grid-area: 4 / 1" aria-label="KP1: show or hide the overlay"><span class="d">1</span><span class="l">overlay</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="2" style="grid-area: 4 / 2" aria-label="KP2: undo"><span class="d">2</span><span class="l">undo</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="3" style="grid-area: 4 / 3" aria-label="KP3: redo"><span class="d">3</span><span class="l">redo</span><span class="led"></span></button>
+            <div class="key ghost" style="grid-area: 4 / 4 / 6 / 5" aria-hidden="true"><span class="d">↵</span></div>
+
+            <button type="button" class="key" data-k="0" style="grid-area: 5 / 1 / 6 / 3" aria-label="KP0: blue pen"><span class="d">0</span><span class="l">blue pen</span><span class="led"></span></button>
+            <div class="key ghost" style="grid-area: 5 / 3" aria-hidden="true"><span class="d">.</span></div>
+          </div>
+          <div class="readout"><span class="ps">›</span><span id="ro"></span><span class="caret"></span></div>
+        </div>
+
+        <div class="screen" id="screenEl">
+          <div class="display" id="display">
+            <canvas id="desk"></canvas>
+            <canvas id="ink" class="ink"></canvas>
+            <div class="badge" id="badge">overlay hidden · <b>press 1</b> to draw</div>
+            <div class="chip" id="chip"></div>
+            <!-- the wayscriber toolbar: top-left, stretches toward the middle -->
+            <div class="wsbar" id="wsbar" role="toolbar" aria-label="wayscriber tool bar">
+              <button type="button" class="tb" id="tbPen"  title="Pen (KP9 red · KP0 blue · KP4 dark)"><i data-lucide="pen"></i></button>
+              <button type="button" class="tb" id="tbHl"   title="Highlighter (KP5)"><i data-lucide="highlighter"></i></button>
+              <button type="button" class="tb" id="tbEr"   title="Eraser (KP6)"><i data-lucide="eraser"></i></button>
+              <span class="dv" aria-hidden="true"></span>
+              <button type="button" class="cd" data-tool="red"  title="Red pen (KP9)"  aria-label="Red pen"></button>
+              <button type="button" class="cd" data-tool="blue" title="Blue pen (KP0)" aria-label="Blue pen"></button>
+              <button type="button" class="cd" data-tool="dark" title="Dark pen (KP4)" aria-label="Dark pen"></button>
+              <span class="dv" aria-hidden="true"></span>
+              <button type="button" class="tb" id="tbUndo"  title="Undo (KP2)"><i data-lucide="undo-2"></i></button>
+              <button type="button" class="tb" id="tbRedo"  title="Redo (KP3)"><i data-lucide="redo-2"></i></button>
+              <button type="button" class="tb" id="tbClear" title="Clear canvas (KP7)"><i data-lucide="trash-2"></i></button>
+            </div>
+          </div>
+          <div class="bezel">
+            <span class="bezel-l">DP-1 · plasma@wayland</span>
+            <span class="bezel-r"><em id="ledTxt">overlay off</em><span class="led-dot"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <p class="fineprint rv" style="--d:.1s">Press <b>1</b> (or <b>Esc</b>) again and <b>the whole overlay hides</b>, ink and toolbar, so your apps are back. To <b>keep your ink on screen</b> while you work in the apps below, use <b>light passthrough</b> (KP8): scribble over the chart, then click it: the ink dims and <b>the click lands on the app below</b>. Even the toolbar is click-through, but <b>KP8 always works</b>, because it's keyd-bound. And the wiring outlives the overlay: <b>KP1 &amp; KP8 stay bound</b> until you turn Drawing Mode off. That stops wayscriber too; the ink comes back on the next start. Flip the switch above the pad to feel both sides. The eraser really erases, undo really undoes, and <b>KP2</b> brings a cleared canvas back.</p>
+    </div>
+  </section>
+
+  <!-- ================= key map ================= -->
+  <section class="sec" id="map">
+    <div class="wrap">
+      <div class="sec-head rv"><span class="sec-idx">02</span><h2 class="sec-title">What each key does.</h2><span class="sec-note">click a row to try it live</span></div>
+      <div class="map-table rv" style="--d:.06s">
+        <div class="map-head"><span>key</span><span>action</span><span>detail</span><span>binding</span></div>
+
+        <div class="map-row" data-k="1" role="button" tabindex="0"><div class="map-key">1</div><div class="map-act">Show / hide the drawing overlay<small>--daemon-toggle</small></div><div class="map-det">overlay on/off · ink and toolbar · esc works too</div><span class="tag keyd">keyd</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="2" role="button" tabindex="0"><div class="map-key">2</div><div class="map-act">Undo</div><div class="map-det">full stroke stack</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="3" role="button" tabindex="0"><div class="map-key">3</div><div class="map-act">Redo</div><div class="map-det">mirror of the undo stack</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="4" role="button" tabindex="0"><div class="map-key">4</div><div class="map-act">Dark pen</div><div class="map-det"><span class="sw" style="background:#222222"></span>#222222 · size 3</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="5" role="button" tabindex="0"><div class="map-key">5</div><div class="map-act">Highlighter</div><div class="map-det"><span class="sw" style="background:#ffff00"></span>#ffff00 · size 20 · 15% opacity</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="6" role="button" tabindex="0"><div class="map-key">6</div><div class="map-act">Eraser</div><div class="map-det"><span class="sw er"></span>size 50, wayscriber's hard cap</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="7" role="button" tabindex="0"><div class="map-key">7</div><div class="map-act">Clear canvas</div><div class="map-det">undoable, KP2 restores it</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="8" role="button" tabindex="0"><div class="map-key">8</div><div class="map-act">Light passthrough<small>--light-toggle</small></div><div class="map-det">ink dims · clicks fall through to your apps</div><span class="tag keyd">keyd</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="9" role="button" tabindex="0"><div class="map-key">9</div><div class="map-act">Red pen</div><div class="map-det"><span class="sw" style="background:#ff0000"></span>#ff0000 · size 5 · the default</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="0" role="button" tabindex="0"><div class="map-key">0</div><div class="map-act">Blue pen</div><div class="map-det"><span class="sw" style="background:#0000ff"></span>#0000ff · size 5</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+      </div>
+
+      <div class="map-foot rv" style="--d:.1s">
+        <p>The numpad only does this while Drawing Mode is on. Before that, and after you turn it off, it types normal digits. <b>Keep Num Lock on</b>: without it KP2-KP7/9/0 send arrows and Home/End, not digits. keyd bindings are added on start and reset on stop, so number entry is never permanently lost.</p>
+        <p><b>keyd</b> rows are remapped globally while Drawing Mode is on: KP1 &amp; KP8 work even with the overlay hidden (and with Num Lock off), and only turning Drawing Mode off hands them back. <b>overlay</b> rows aren't remapped at all: they're wayscriber's own <code class="ic">[keybindings]</code>, which only fire while the overlay is shown and holds keyboard focus.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= install ================= -->
+  <section class="sec" id="install">
+    <div class="wrap">
+      <div class="sec-head rv"><span class="sec-idx">03</span><h2 class="sec-title">From zero to scribbling.</h2><span class="sec-note">arch · debian · ubuntu · fedora · plasma · wayland · docker</span></div>
+
+      <div class="inst-grid">
+        <div class="rv" style="--d:.06s">
+          <div class="subhead">Before you start</div>
+          <ul class="pre">
+            <li><i data-lucide="check"></i><span>Arch or Arch-based (Manjaro, CachyOS, …), Debian 13+, Ubuntu 25.10+ (incl. 26.04 LTS), or Fedora (install refuses glibc older than 2.41: no Debian 12, Ubuntu 24.04 or RHEL 10)</span></li>
+            <li><i data-lucide="check"></i><span>KDE Plasma on a Wayland session: <code class="ic">echo $XDG_SESSION_TYPE</code> says <code class="ic">wayland</code></span></li>
+            <li><i data-lucide="check"></i><span>Docker + Docker Compose: <code class="ic">docker compose version</code> works</span></li>
+            <li><i data-lucide="check"></i><span>No AUR, no third-party repo: the distro's official package if one exists, otherwise built inside a disposable container</span></li>
+          </ul>
+
+          <div class="subhead">Lifecycle</div>
+          <div class="term">
+            <div class="term-bar"><span class="dots"><i></i><i></i><i></i></span><span class="term-title">wayscriber.sh</span></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>git clone https://github.com/MarcusHoltz/wayscriber-numpad.git</code><button class="copy" data-copy="git clone https://github.com/MarcusHoltz/wayscriber-numpad.git"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">get the code</div></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>cd wayscriber-numpad</code><button class="copy" data-copy="cd wayscriber-numpad"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">every command below runs from here</div></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>./wayscriber.sh install</code><button class="copy" data-copy="./wayscriber.sh install"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">--dry-run previews first</div></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>./wayscriber.sh start</code><button class="copy" data-copy="./wayscriber.sh start"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">Drawing Mode on · runs in the background, terminal can close</div></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>./wayscriber.sh stop</code><button class="copy" data-copy="./wayscriber.sh stop"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">Drawing Mode off · wayscriber stops, numpad types numbers</div></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>./wayscriber.sh update</code><button class="copy" data-copy="./wayscriber.sh update"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">rebuild from upstream · takes effect next start</div></div>
+            <div class="cmdgroup"><div class="cline"><span class="ps">$</span><code>./wayscriber.sh status</code><button class="copy" data-copy="./wayscriber.sh status"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div><div class="cnote">what's installed · what's running</div></div>
+            <div class="term-cap">no arguments = interactive menu · aliases: on/enable, off/disable, setup, upgrade, remove · update uses --no-cache, since docker's layer cache won't refetch main on its own</div>
+          </div>
+        </div>
+
+        <div class="steps rv" style="--d:.14s">
+          <div class="subhead">What install does, in order</div>
+          <div class="step"><span class="n">01</span><div><h4>keyd, wired</h4><p>On Arch, Debian and Ubuntu, keyd comes from the distro repo (Debian and Ubuntu name the binary <code class="ic">keyd.rvaiya</code>; the script calls that). Fedora has no package, so keyd v2.6.0 is built in the same container and installed with <code class="ic">make install PREFIX=/usr</code>. Then you're added to the <code class="ic">keyd</code> group and its service is enabled (sudo). Run <code class="ic">newgrp keyd</code> afterwards, or just log out and back in.</p></div></div>
+          <div class="step"><span class="n">02</span><div><h4>Runtime libraries</h4><p>On Arch, the exact list from wayscriber's own PKGBUILD: <code class="ic">cairo wayland pango libxkbcommon gtk4 gtk4-layer-shell libadwaita wl-clipboard grim slurp</code>. Debian and Fedora get the same libraries under their own package names via apt / dnf (Fedora adds <code class="ic">make</code> for keyd). All sudo.</p></div></div>
+          <div class="step"><span class="n">03</span><div><h4>wayscriber, built in Docker</h4><p>One <code class="ic">Dockerfile</code> for every distro: a Debian 13 container (glibc 2.41, GTK 4.18) installs the rust toolchain pinned by upstream's <code class="ic">rust-toolchain.toml</code>, clones the repo and runs <code class="ic">cargo build --release</code> with default features. Built against the oldest supported glibc, the same binary runs on Arch, Ubuntu and Fedora. Only the finished binary (and the keyd tree Fedora uses) crosses back out, into <code class="ic">./dist/</code>. The toolchain and the clones never touch your host. The <code class="ic">:Z</code> bind-mount label is for Fedora's SELinux.</p></div></div>
+          <div class="step"><span class="n">04</span><div><h4>Binary, no sudo</h4><p>The binary lands in <code class="ic">~/.local/bin/wayscriber</code>. No service is created for wayscriber and nothing autostarts: it only runs while Drawing Mode is on.</p></div></div>
+          <div class="step"><span class="n">05</span><div><h4>config.toml</h4><p>Installed to <code class="ic">~/.config/wayscriber/</code>. <b>This repo's copy is the source of truth:</b> if the installed one differs, the plan says so, the old copy is saved to <code class="ic">~/.local/state/wayscriber-numpad/config-backups/</code> and replaced, and a running Drawing Mode is restarted to load it. <code class="ic">status</code> warns when they differ.</p></div></div>
+          <div class="step"><span class="n">06</span><div><h4>The keyd bridge</h4><p><code class="ic">/etc/keyd/wayscriber.conf</code> (sudo) plus <code class="ic">~/.local/bin/wayscriber-ctl.sh</code>, the bridge keyd, running as root, calls to run wayscriber as you. Its HOME comes from your passwd entry, not a hardcoded <code class="ic">/home/$USER</code>.</p></div></div>
+          <div class="step"><span class="n">07</span><div><h4>The Drawing Mode app, no sudo</h4><p><code class="ic">~/.local/bin/wayscriber-numpad</code> (the on/off switch), <code class="ic">~/.config/systemd/user/wayscriber-numpad.service</code> (never enabled: no <code class="ic">[Install]</code> section, stops at logout) and <code class="ic">wayscriber-numpad.desktop</code>, the app-menu entry.</p></div></div>
+        </div>
+      </div>
+
+      <div class="notes rv" style="--d:.08s">
+        <div class="note"><h4>Use it</h4><p>No terminal needed. Open the app menu, click <b>Drawing Mode</b>: the wayscriber tray icon appears and a popup says to press 1. Press <kbd>1</kbd> to draw, <kbd>1</kbd> again when done. Click Drawing Mode again to turn it off. Right-click offers Turn On / Turn Off, and it can be pinned to the panel. It never starts on its own and turns itself off at logout.</p></div>
+        <div class="note"><h4>Built for screen recording</h4><p>Only the drawing shows. This repo's config hides wayscriber's status bar, zoom chip and floating board badge, and turns off its tips, capability warnings, preset toasts, presenter toast and update notifications. Set any back to <code class="ic">true</code> in the repo's <code class="ic">config.toml</code> and re-run install. Drawing Mode's own on/off popups stay on; they appear only when switching, never while drawing (<code class="ic">POPUPS=</code> in the switch script).</p></div>
+        <div class="note"><h4>Customize</h4><p>Edit <b>this repo's</b> <code class="ic">config.toml</code>, then run <code class="ic">./wayscriber.sh install</code> to push it and restart Drawing Mode. Direct edits to <code class="ic">~/.config/wayscriber/config.toml</code> get replaced (after a backup). The <code class="ic">[presets.slot_1..5]</code> blocks decide what KP9 / KP0 / KP4 / KP5 / KP6 select (tool, color, size, <code class="ic">marker_opacity</code>…); the <code class="ic">[keybindings]</code> block remaps KP2-KP7/9/0. KP1 and KP8 are the exception: they're the keyd bindings, set under <code class="ic">keys-on</code> in <code class="ic">generate_toggle()</code> in wayscriber.sh, and limited to the ten action names wayscriber's TrayAction actually accepts.</p></div>
+        <div class="note"><h4>Uninstall</h4><p><code class="ic">./wayscriber.sh uninstall</code> asks first, turns Drawing Mode off, then removes the Drawing Mode app (launcher, switch, systemd unit), the keyd config, the bridge script and only what its own receipt file shows it installed. A keyd setup you already had survives untouched. wayscriber itself and its runtime libraries stay on purpose; the script prints the exact commands to remove those too, instead of running them.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= wayscriber (their world, their palette) ================= -->
+  <section class="sec--ws" id="wayscriber">
+    <div class="wrap">
+      <div class="sec-head rv"><span class="sec-idx">04</span><h2 class="sec-title">the engine under the keys.</h2><span class="sec-note">wayscriber, the whole machine</span></div>
+      <p class="lede rv" style="--d:.06s"><b>wayscriber</b> is a live screen annotation and presentation tool for Linux, written in Rust. One keybind puts a drawing layer over the screen: you can annotate, present, zoom, capture, and then hide the layer again. <b>This repo wires ten of its ~130 actions onto your numpad; everything on this stretch of the page is what's actually running underneath.</b> (Their homepage is an app too: press \ there and you can draw on it. This one answers to your number keys.)</p>
+      <p class="ws-src rv" style="--d:.08s">source &amp; docs: <a href="https://github.com/devmobasa/wayscriber" target="_blank" rel="noopener">github.com/devmobasa/wayscriber</a> · <a href="https://wayscriber.com" target="_blank" rel="noopener">wayscriber.com</a> · linux-native · rust · MIT · wayland</p>
+
+      <!-- stats -->
+      <div class="stats rv" style="--d:.1s">
+        <div class="stat"><b>1</b><span>native rust binary</span><small>no electron · no webview</small></div>
+        <div class="stat"><b>8-9 ms</b><span>p95 / p99 input-to-commit</span><small>measured while drawing</small></div>
+        <div class="stat"><b>120 fps</b><span>default cap · vsync off</span><small>144 / 240+ configurable</small></div>
+        <div class="stat"><b>~130</b><span>rebindable actions</span><small>one commented toml file</small></div>
+      </div>
+
+      <!-- block A: the layer diagram -->
+      <div class="ws-block rv" style="margin-top:64px">
+        <div class="ws-block-head">
+          <h3>why it can sit above everything.</h3>
+          <div class="modes" role="group" aria-label="overlay mechanism comparison">
+            <button type="button" class="mode" data-mode="x">xwayland · x11 overlay apps</button>
+            <button type="button" class="mode active" data-mode="l">layer-shell · wayscriber</button>
+          </div>
+          <span class="stack-hint">click the diagram to replay</span>
+        </div>
+        <div class="stackbox" id="stackBox" data-mode="l">
+          <svg id="stackSvg" viewBox="0 0 720 340" role="img" aria-label="animated comparison of an XWayland overlay versus a wlr-layer-shell overlay over the KWin compositor">
+            <rect x="96" y="118" width="272" height="132" rx="7" fill="#f6f4ee" stroke="#d9d6cd"/>
+            <rect x="96" y="118" width="272" height="24" rx="7" fill="#eceae2"/>
+            <rect x="96" y="130" width="272" height="12" fill="#eceae2"/>
+            <circle cx="110" cy="130" r="3.5" fill="none" stroke="#b9b9b9" stroke-width="1.5"/>
+            <circle cx="124" cy="130" r="3.5" fill="none" stroke="#b9b9b9" stroke-width="1.5"/>
+            <circle cx="138" cy="130" r="3.5" fill="none" stroke="#b9b9b9" stroke-width="1.5"/>
+            <text x="152" y="133" class="sv-t" fill="#6f6f6f">Q4 review - presentation</text>
+            <text x="116" y="164" class="sv-tb">Revenue by quarter</text>
+            <text x="116" y="177" class="sv-t2">FY24 · USD m</text>
+            <rect x="116" y="188" width="28" height="44" rx="3" fill="#c9ccd2"/>
+            <rect x="160" y="168" width="28" height="64" rx="3" fill="#c9ccd2"/>
+            <rect x="204" y="180" width="28" height="52" rx="3" fill="#c9ccd2"/>
+            <rect x="248" y="142" width="28" height="90" rx="3" fill="#e04434"/>
+            <rect x="424" y="140" width="196" height="110" rx="7" fill="#17181c" stroke="#2c3037"/>
+            <rect x="424" y="140" width="196" height="22" rx="7" fill="#20232a"/>
+            <rect x="424" y="152" width="196" height="10" fill="#20232a"/>
+            <text x="438" y="154" class="sv-t" fill="#9aa0ab">konsole</text>
+            <rect x="438" y="178" width="110" height="5" rx="2.5" fill="#3a3f49"/>
+            <rect x="438" y="192" width="78" height="5" rx="2.5" fill="#3a3f49"/>
+            <rect x="438" y="208" width="8" height="10" rx="1" fill="#e2604f"/>
+            <rect x="48" y="250" width="624" height="50" rx="9" fill="#0d0640" stroke="#7e74e866"/>
+            <text x="360" y="272" text-anchor="middle" class="sv-t" fill="#a9a1dc">KWIN · THE WAYLAND COMPOSITOR</text>
+            <text x="360" y="288" text-anchor="middle" class="sv-t2" fill="#7d76b8">surfaces · input · seats</text>
+
+            <!-- XWayland: the broken overlay -->
+            <g id="mx">
+              <rect x="48" y="56" width="624" height="190" rx="9" fill="none" stroke="#7e74e866" stroke-dasharray="5 5"/>
+              <text x="52" y="48" class="sv-t2" fill="#7d76b8">where the overlay should be</text>
+              <g transform="translate(38 18) rotate(1.6 360 151)">
+                <rect x="48" y="56" width="624" height="190" rx="9" fill="rgba(242,29,146,.05)" stroke="#f21d92" stroke-width="1.5" stroke-dasharray="6 5"/>
+                <text x="64" y="82" class="sv-t" fill="#ff5cb0">X11 app · XWayland overlay window</text>
+                <path class="x-ink" d="M150 170 C 210 130, 300 210, 380 150 S 490 120, 540 175" fill="none" stroke="#f21d92" stroke-width="3.5" stroke-linecap="round" pathLength="1"/>
+              </g>
+              <g class="x-ptr"><circle r="7" fill="#060126" stroke="#fff" stroke-width="2"/></g>
+              <circle class="x-ring" r="13" fill="none" stroke="#ff5cb0" stroke-width="2"/>
+              <line class="x-link" x1="312" y1="164" x2="348" y2="188" stroke="#ff5cb0" stroke-width="1.5" stroke-dasharray="4 4"/>
+              <path class="x-cross" d="M325 167 l10 10 M335 167 l-10 10" stroke="#ff5cb0" stroke-width="2.5" stroke-linecap="round"/>
+              <text class="x-verdict" x="360" y="330" text-anchor="middle" class="sv-t" fill="#ff5cb0">the pointer's window-under-cursor was never it</text>
+            </g>
+
+            <!-- layer-shell: the real thing -->
+            <g id="ml">
+              <rect x="48" y="56" width="624" height="190" rx="9" fill="rgba(236,232,255,.05)" stroke="#a9a1dc" stroke-width="1.5"/>
+              <text x="64" y="82" class="sv-t" fill="#cfc9f2">wayscriber · wlr-layer-shell surface</text>
+              <path class="l-ink1" d="M130 172 C 200 122, 290 212, 370 152 S 500 112, 560 172" fill="none" stroke="#ff3b30" stroke-width="4" stroke-linecap="round" pathLength="1"/>
+              <path class="l-ink2" d="M150 206 L 470 206" fill="none" stroke="#ffd52e" stroke-width="14" stroke-linecap="round" opacity=".4" pathLength="1"/>
+              <g class="l-ptr"><circle r="7" fill="#060126" stroke="#fff" stroke-width="2"/></g>
+              <text class="l-verdict" x="360" y="330" text-anchor="middle" class="sv-t" fill="#1bf2b5">input, placement, click-through: the compositor's job, and done</text>
+            </g>
+          </svg>
+          <p class="stack-cap" id="stackCap"></p>
+        </div>
+      </div>
+
+      <!-- block B: the capability stage -->
+      <div class="ws-block rv">
+        <div class="ws-block-head">
+          <h3>what's actually running.</h3>
+          <span class="ws-hint">hover a row, the screen plays it</span>
+        </div>
+        <div class="cap-grid">
+          <div class="cap-stage" id="capStage">
+            <div class="stagebox">
+              <svg id="capSvg" viewBox="0 0 560 340" role="img" aria-label="an annotated mini desktop demonstrating wayscriber's features">
+                <defs><pattern id="p-grid" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M26 0 H0 V26" fill="none" stroke="#ffffff" stroke-opacity=".16"/></pattern></defs>
+                <!-- everything that zooms lives in here -->
+                <g id="sv-zoomwrap">
+                  <rect id="sv-bg" x="0" y="0" width="560" height="340" rx="10" fill="#e8e6e0"/>
+                  <rect id="sv-grid" x="0" y="0" width="560" height="340" fill="url(#p-grid)"/>
+                  <g id="sv-apps">
+                    <!-- slide window -->
+                    <rect x="64" y="52" width="320" height="200" rx="7" fill="#ffffff" stroke="#d9d6cd"/>
+                    <rect x="64" y="52" width="320" height="22" rx="7" fill="#efece5"/>
+                    <rect x="64" y="60" width="320" height="14" fill="#efece5"/>
+                    <circle cx="78" cy="63" r="3.5" fill="none" stroke="#b9b9b9" stroke-width="1.5"/>
+                    <circle cx="90" cy="63" r="3.5" fill="none" stroke="#b9b9b9" stroke-width="1.5"/>
+                    <circle cx="102" cy="63" r="3.5" fill="none" stroke="#b9b9b9" stroke-width="1.5"/>
+                    <text x="118" y="66" class="sv-t" fill="#6f6f6f">Q4 review</text>
+                    <text x="84" y="98" class="sv-tb">Revenue by quarter</text>
+                    <text x="84" y="111" class="sv-t2">FY24 · USD m</text>
+                    <rect x="92" y="188" width="28" height="44" rx="3" fill="#c9ccd2"/>
+                    <rect x="138" y="170" width="28" height="62" rx="3" fill="#c9ccd2"/>
+                    <rect x="184" y="182" width="28" height="50" rx="3" fill="#c9ccd2"/>
+                    <rect x="230" y="138" width="28" height="94" rx="3" fill="#e04434"/>
+                    <rect x="84" y="233" width="280" height="1" fill="#d9dadd"/>
+                    <!-- editor window -->
+                    <rect x="396" y="72" width="150" height="140" rx="7" fill="#ffffff" stroke="#d9d6cd"/>
+                    <rect x="396" y="72" width="150" height="20" rx="7" fill="#efece5"/>
+                    <rect x="396" y="80" width="150" height="12" fill="#efece5"/>
+                    <text x="410" y="86" class="sv-t" fill="#6f6f6f">main.rs</text>
+                    <rect x="402" y="130" width="138" height="15" fill="#1bf2b5" opacity=".15"/>
+                    <rect x="406" y="102" width="96" height="5" rx="2.5" fill="#c9ccd2"/>
+                    <rect x="406" y="113" width="124" height="5" rx="2.5" fill="#c9ccd2"/>
+                    <rect x="406" y="124" width="72" height="5" rx="2.5" fill="#c9ccd2"/>
+                    <rect x="406" y="135" width="110" height="5" rx="2.5" fill="#c9ccd2"/>
+                    <rect x="406" y="146" width="88" height="5" rx="2.5" fill="#c9ccd2"/>
+                    <rect x="406" y="157" width="104" height="5" rx="2.5" fill="#c9ccd2"/>
+                    <!-- panel + tray -->
+                    <rect x="0" y="306" width="560" height="34" fill="#dad8d2"/>
+                    <rect x="0" y="306" width="560" height="1" fill="#cccbc5"/>
+                    <rect x="14" y="313" width="20" height="20" rx="5" fill="#a7abb2"/>
+                    <rect x="44" y="313" width="20" height="20" rx="5" fill="#9298a1"/>
+                    <rect x="74" y="313" width="20" height="20" rx="5" fill="#a7abb2"/>
+                    <rect x="104" y="313" width="20" height="20" rx="5" fill="#a7abb2"/>
+                    <rect x="47" y="328" width="10" height="2.5" rx="1.2" fill="#e04434"/>
+                    <text x="546" y="326" text-anchor="end" class="sv-t" fill="#6e6e6e">21:47</text>
+                    <g id="tr-cam"><rect x="458" y="317" width="18" height="13" rx="2.5" fill="none" stroke="#6e6e6e" stroke-width="1.5"/><rect x="463" y="314.5" width="6" height="3" rx="1" fill="#6e6e6e"/><circle cx="467" cy="323.5" r="3.2" fill="none" stroke="#6e6e6e" stroke-width="1.5"/></g>
+                    <g id="tr-bulb"><circle cx="498" cy="322" r="5.5" fill="none" stroke="#6e6e6e" stroke-width="1.5"/><rect x="494.5" y="328.5" width="7" height="2" rx="1" fill="#6e6e6e"/></g>
+                    <text x="522" y="328" class="sv-t" fill="#6e6e6e">?</text>
+                  </g>
+                  <!-- ink -->
+                  <g id="sv-ink">
+                    <path id="sv-r" d="M100 168 C 140 138, 185 196, 230 166 S 300 132, 336 164" fill="none" stroke="#ff3b30" stroke-width="4.5" stroke-linecap="round" pathLength="1" class="dr"/>
+                    <path id="sv-y" d="M100 206 L 300 206" fill="none" stroke="#ffd52e" stroke-width="15" stroke-linecap="round" opacity=".4" pathLength="1" class="dr"/>
+                    <path id="sv-b" d="M96 240 L 280 240" fill="none" stroke="#0000FF" stroke-width="3" stroke-linecap="round" pathLength="1" class="dr"/>
+                  </g>
+                  <!-- shapes: ellipse, rect(+handles), numbered arrow -->
+                  <ellipse id="sh-el" cx="172" cy="93" rx="98" ry="17" fill="none" stroke="#e031eb" stroke-width="2.5" pathLength="1" class="dr"/>
+                  <g id="sh-rectg">
+                    <rect class="sh-r" x="224" y="130" width="40" height="110" rx="3" fill="none" stroke="#e031eb" stroke-width="2.5" pathLength="1" class="dr"/>
+                    <g id="sh-handles">
+                      <rect x="220.5" y="126.5" width="7" height="7" rx="1.5" fill="#1bf2b5"/>
+                      <rect x="260.5" y="126.5" width="7" height="7" rx="1.5" fill="#1bf2b5"/>
+                      <rect x="220.5" y="236.5" width="7" height="7" rx="1.5" fill="#1bf2b5"/>
+                      <rect x="260.5" y="236.5" width="7" height="7" rx="1.5" fill="#1bf2b5"/>
+                    </g>
+                  </g>
+                  <path id="sh-arr" d="M388 150 L272 150" fill="none" stroke="#e031eb" stroke-width="2.5" pathLength="1" class="dr"/>
+                  <path id="sh-head" d="M286 142 L272 150 L286 158" fill="none" stroke="#e031eb" stroke-width="2.5" stroke-linecap="round" pathLength="1" class="dr"/>
+                  <g id="sh-lab"><circle cx="400" cy="150" r="11" fill="#1bf2b5"/><text x="400" y="154" text-anchor="middle" style="font:700 11px var(--mono)" fill="#060126">1</text></g>
+                  <!-- sticky note -->
+                  <g id="sv-sticky">
+                    <rect x="408" y="178" width="94" height="66" rx="3" fill="#ffdf5e" stroke="#d9b23a"/>
+                    <path d="M490 244 L502 244 L502 232 Z" fill="#e6c04a"/>
+                    <text x="416" y="197" style="font:700 11px var(--mono)" fill="#3a2c1a">TODO</text>
+                    <rect x="416" y="205" width="70" height="4" rx="2" fill="#3a2c1a" opacity=".6"/>
+                    <rect x="416" y="213" width="52" height="4" rx="2" fill="#3a2c1a" opacity=".6"/>
+                    <rect x="416" y="221" width="64" height="4" rx="2" fill="#3a2c1a" opacity=".6"/>
+                  </g>
+                  <!-- multiline text -->
+                  <text id="t1" x="84" y="277" style="font:italic 500 12px var(--mono)" fill="#17181c">note: ship v2 on friday</text>
+                  <text id="t2" x="84" y="293" style="font:italic 500 12px var(--mono)" fill="#17181c">ask finance for the q5 forecast</text>
+                  <rect id="tc" x="272" y="284" width="6" height="12" fill="#17181c"/>
+                  <!-- eraser ghost -->
+                  <g id="sv-eg"><circle r="15" fill="none" stroke="#555" stroke-width="1.5" stroke-dasharray="4 4"/></g>
+                </g>
+
+                <!-- toolbar (stays fixed while the canvas zooms) -->
+                <g id="sv-bar">
+                  <rect x="16" y="14" width="266" height="36" rx="8" fill="#1d2026" stroke="#3a3f49"/>
+                  <g id="tb-pen"><rect x="26" y="19" width="26" height="26" rx="6" fill="#22262d" stroke="#333945"/><path d="M33 39 L43 29" stroke="#c9cdd4" stroke-width="2.4" stroke-linecap="round"/><circle cx="43" cy="29" r="1.8" fill="#c9cdd4"/></g>
+                  <g id="tb-hl"><rect x="58" y="19" width="26" height="26" rx="6" fill="#22262d" stroke="#333945"/><path d="M63 32 h16" stroke="#ffd52e" stroke-width="6" stroke-linecap="round" opacity=".5"/></g>
+                  <g id="tb-er"><rect x="90" y="19" width="26" height="26" rx="6" fill="#22262d" stroke="#333945"/><rect x="96" y="26.5" width="14" height="10" rx="2" fill="none" stroke="#c9cdd4" stroke-width="2"/></g>
+                  <rect x="126" y="20" width="1" height="24" fill="#343943"/>
+                  <circle cx="142" cy="32" r="6" fill="#ff3b30" stroke="rgba(255,255,255,.25)"/>
+                  <circle cx="160" cy="32" r="6" fill="#2b2bff" stroke="rgba(255,255,255,.25)"/>
+                  <circle cx="178" cy="32" r="6" fill="#222222" stroke="rgba(255,255,255,.25)"/>
+                  <rect x="196" y="20" width="1" height="24" fill="#343943"/>
+                  <g id="tb-undo"><rect x="204" y="19" width="20" height="26" rx="6" fill="#22262d" stroke="#333945"/><path d="M217 27.5 L210 34.5 L217 41.5" fill="none" stroke="#9aa1ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+                  <g id="tb-redo"><rect x="228" y="19" width="20" height="26" rx="6" fill="#22262d" stroke="#333945"/><path d="M231 27.5 L238 34.5 L231 41.5" fill="none" stroke="#9aa1ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>
+                  <g id="tb-clear"><rect x="252" y="19" width="20" height="26" rx="6" fill="#22262d" stroke="#333945"/><path d="M257 29.5 L267 39.5 M267 29.5 L257 39.5" stroke="#9aa1ac" stroke-width="2" stroke-linecap="round"/></g>
+                </g>
+
+                <!-- board chip -->
+                <g id="sv-boardchip"><rect x="292" y="8" width="160" height="18" rx="9" fill="#0a0430" stroke="#8c82f052"/><text id="bc-txt" x="372" y="20.5" text-anchor="middle" style="font:500 9px var(--mono)" fill="#a9a1dc">board 1/5 · overlay</text></g>
+
+                <!-- radial menu -->
+                <g id="sv-radial">
+                  <circle id="sv-ring2" cx="300" cy="190" r="54" fill="none" stroke="#1bf2b566" stroke-width="1.5"/>
+                  <circle cx="300" cy="190" r="3.5" fill="#a9a1dc"/>
+                  <g id="rg-pen"><circle cx="340" cy="190" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><path d="M336 194 L344 186" stroke="#a9a1dc" stroke-width="1.8" stroke-linecap="round"/></g>
+                  <g><circle cx="328" cy="218" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><path d="M323 218 h10" stroke="#a9a1dc" stroke-width="4" stroke-linecap="round" opacity=".6"/></g>
+                  <g><circle cx="300" cy="230" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><rect x="295" y="226" width="10" height="8" rx="1.5" fill="none" stroke="#a9a1dc" stroke-width="1.6"/></g>
+                  <g><circle cx="272" cy="218" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><rect x="267" y="213" width="10" height="10" rx="1.5" fill="none" stroke="#a9a1dc" stroke-width="1.6"/></g>
+                  <g><circle cx="260" cy="190" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><circle cx="260" cy="190" r="5" fill="none" stroke="#a9a1dc" stroke-width="1.6"/></g>
+                  <g><circle cx="272" cy="162" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><path d="M268 166 L276 158 M273 158 L276 158 L276 161" stroke="#a9a1dc" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>
+                  <g><circle cx="300" cy="150" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><text x="300" y="154" text-anchor="middle" style="font:700 9px var(--mono)" fill="#a9a1dc">A</text></g>
+                  <g><circle cx="328" cy="162" r="10" fill="#0a0430" stroke="#8c82f052" stroke-width="1.5"/><path d="M332 160 L326 160 M328 157 L325 160 L328 163" stroke="#a9a1dc" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>
+                </g>
+                <g id="sv-rcursor"><circle r="6" fill="#060126" stroke="#fff" stroke-width="2"/></g>
+
+                <!-- command palette -->
+                <g id="sv-pal">
+                  <rect x="150" y="70" width="270" height="122" rx="10" fill="#0a0430" stroke="#8c82f052"/>
+                  <text id="pal-in" x="170" y="93" style="font:500 12px var(--mono)" fill="#ece8ff">›</text>
+                  <rect x="158" y="100" width="254" height="1" fill="#7e74e829"/>
+                  <rect id="pal-hl" x="158" y="106" width="254" height="20" rx="5" fill="rgba(27,242,181,.14)" opacity="0"/>
+                  <text id="pal-r1" x="170" y="120" style="font:400 11px var(--mono)" fill="#cfc9f2"></text>
+                  <text id="pal-r2" x="170" y="142" style="font:400 11px var(--mono)" fill="#a9a1dc"></text>
+                  <text id="pal-r3" x="170" y="164" style="font:400 11px var(--mono)" fill="#a9a1dc"></text>
+                  <text x="406" y="186" text-anchor="end" style="font:400 9px var(--mono)" fill="#7d76b8">↵ run · esc close</text>
+                </g>
+
+                <!-- zoom chip -->
+                <g id="sv-zchip">
+                  <rect x="436" y="280" width="106" height="22" rx="6" fill="#0a0430" stroke="#8c82f052"/>
+                  <text x="446" y="295" style="font:600 10px var(--mono)" fill="#ece8ff">−</text>
+                  <text id="zc-pct" x="489" y="295" text-anchor="middle" style="font:600 10px var(--mono)" fill="#1bf2b5">100%</text>
+                  <text x="532" y="295" text-anchor="end" style="font:600 10px var(--mono)" fill="#ece8ff">+</text>
+                </g>
+
+                <!-- input HUD -->
+                <g id="hud-ctrl"><rect x="196" y="262" width="46" height="20" rx="5" fill="#0a0430" stroke="#8c82f052"/><text x="219" y="276" text-anchor="middle" style="font:600 9.5px var(--mono)" fill="#ece8ff">ctrl</text></g>
+                <g id="hud-plus"><text x="252" y="277" style="font:600 10px var(--mono)" fill="#7d76b8">+</text></g>
+                <g id="hud-k"><rect x="262" y="262" width="26" height="20" rx="5" fill="#0a0430" stroke="#8c82f052"/><text x="275" y="276" text-anchor="middle" style="font:600 9.5px var(--mono)" fill="#ece8ff">k</text></g>
+                <g id="hud-x3"><rect x="300" y="260" width="40" height="24" rx="6" fill="rgba(27,242,181,.15)" stroke="#1bf2b5"/><text x="320" y="277" text-anchor="middle" style="font:700 10px var(--mono)" fill="#1bf2b5">×3</text></g>
+
+                <!-- click ripples -->
+                <circle class="svrip" id="sv-rip1" cx="445" cy="110" r="8" fill="none" stroke="#1bf2b5" stroke-width="2"/>
+                <circle class="svrip" id="sv-rip2" cx="160" cy="210" r="8" fill="none" stroke="#1bf2b5" stroke-width="2"/>
+                <circle class="svrip" id="sv-rip3" cx="430" cy="142" r="8" fill="none" stroke="#1bf2b5" stroke-width="2"/>
+
+                <!-- capture / ocr -->
+                <rect id="sv-marq" x="84" y="120" width="180" height="100" rx="4" fill="rgba(224,68,52,.06)" stroke="#e04434" stroke-width="1.5" stroke-dasharray="7 5"/>
+                <rect id="sv-flash" x="84" y="120" width="180" height="100" rx="4" fill="#fff"/>
+                <text id="sv-shot" x="272" y="132" class="sv-t" fill="#a0423a">grim · slurp → clipboard</text>
+                <rect id="sv-ocr" x="80" y="82" width="196" height="24" fill="none" stroke="#1bf2b5" stroke-width="1.5" stroke-dasharray="6 6"/>
+                <g id="sv-ocrlab"><rect x="286" y="85" width="118" height="17" rx="8" fill="#0a0430" stroke="#1bf2b566"/><text x="345" y="97" text-anchor="middle" style="font:500 8.5px var(--mono)" fill="#1bf2b5">ocr → text copied</text></g>
+              </svg>
+              <svg id="tlSvg" viewBox="0 0 560 64" role="img" aria-label="timeline: wayscriber runs while Drawing Mode is on, overlays come and go">
+                <text x="0" y="9" class="sv-t" fill="#a9a1dc">wayscriber-numpad.service</text>
+                <text x="560" y="9" text-anchor="end" class="sv-t2" fill="#7d76b8">systemd --user</text>
+                <g id="tl-ov1"><path d="M62 28 v-9 h138 v9" fill="none" stroke="#1bf2b5" stroke-width="1.5"/><text x="131" y="14" text-anchor="middle" class="sv-t2" fill="#29e6bd">overlay</text></g>
+                <g id="tl-ov2"><path d="M320 28 v-9 h108 v9" fill="none" stroke="#1bf2b5" stroke-width="1.5"/></g>
+                <rect id="tl-bar" x="0" y="31" width="560" height="9" rx="4.5" fill="#0d0640" stroke="#7e74e866"/>
+                <line x1="6" y1="35.5" x2="554" y2="35.5" stroke="#7e74e866" stroke-width="1" stroke-dasharray="2 38"/>
+                <text x="0" y="58" class="sv-t2" fill="#7d76b8">while Drawing Mode is on</text>
+                <path id="tl-ink" d="M96 55 H 480" fill="none" stroke="#ff3b30" stroke-width="2.5" pathLength="1" class="dr"/>
+                <text id="tl-note" x="556" y="58" text-anchor="end" class="sv-t2" fill="#a9a1dc">ink persists</text>
+              </svg>
+            </div>
+            <div class="readout cap-read"><span class="ps">›</span><span id="capRo">wayscriber idle</span><span class="caret"></span></div>
+          </div>
+
+          <ol class="cap-list" id="capList">
+            <li class="cap" data-f="ink" tabindex="0"><i data-lucide="pen-tool"></i><div><h4>the full drawing toolkit <span class="kp-tag">kp 4·5·6·9·0</span></h4><p>pen, highlighter and eraser: smooth freehand ink on a layer above every window, sizes to 50.</p></div></li>
+            <li class="cap" data-f="shapes" tabindex="0"><i data-lucide="shapes"></i><div><h4>shapes &amp; numbered arrows</h4><p>lines, rectangles, ellipses, fillable polygons, and arrows with auto-numbered labels, step markers and blur. select, move and restack any of them.</p></div></li>
+            <li class="cap" data-f="text" tabindex="0"><i data-lucide="type"></i><div><h4>text &amp; sticky notes</h4><p>multiline text you can place, edit, move and restyle, plus sticky notes for the things that must not be missed.</p></div></li>
+            <li class="cap" data-f="radial" tabindex="0"><i data-lucide="compass"></i><div><h4>radial menu at the cursor</h4><p>hold middle-click: a fixed eight-way compass of tool glyphs, recent colors and an outer size ring. move the pointer, release, done.</p></div></li>
+            <li class="cap" data-f="palette" tabindex="0"><i data-lucide="command"></i><div><h4>command palette</h4><p>ctrl+k fuzzy-searches every action, with icons and category headers. reopen recents, save preset slots, edit shortcuts in place.</p></div></li>
+            <li class="cap" data-f="boards" tabindex="0"><i data-lucide="layers"></i><div><h4>boards &amp; pages</h4><p>transparent overlay, whiteboard, blackboard, blueprint or corkboard. separate pages per board, auto-contrast pens, ctrl+shift+1..9 jump slots, space+drag to pan.</p></div></li>
+            <li class="cap" data-f="zoom" tabindex="0"><i data-lucide="zoom-in"></i><div><h4>zoom &amp; presenter mode</h4><p>zoomit-style ctrl+alt+scroll zoom with lock and pan. a live-percent chip sits in the corner with zoom-out, fit and lock (this repo's config hides it for recording).</p></div></li>
+            <li class="cap" data-f="light" tabindex="0"><i data-lucide="sun-dim"></i><div><h4>light passthrough <span class="kp-tag">kp8</span></h4><p>clicks pass through the overlay while your drawings stay visible: work under your notes. needs a layer-shell compositor; KDE Plasma has it.</p></div></li>
+            <li class="cap" data-f="capture" tabindex="0"><i data-lucide="scan-text"></i><div><h4>capture &amp; ocr</h4><p>region, window or full screen to the clipboard or a png. select on-screen text, run ocr, copy the result. The overlay stays open.</p></div></li>
+            <li class="cap" data-f="hud" tabindex="0"><i data-lucide="keyboard"></i><div><h4>input hud</h4><p>ctrl+shift+k paints your keystrokes and clicks on the screen, for demos and screencasts. held keys collapse into a ×n counter.</p></div></li>
+            <li class="cap" data-f="sessions" tabindex="0"><i data-lucide="history"></i><div><h4>sessions that survive <span class="kp-tag">kp1</span></h4><p>boards, undo history and tool state persist per monitor across restarts: compressed, backed up, auto-recovered after a crash.</p></div></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- also in the box -->
+      <div class="ws-block rv">
+        <div class="ws-block-head"><h3>also in the box.</h3><span class="ws-hint">no plugins · no accounts · all included</span></div>
+        <div class="also">
+          <div><h4>select, move &amp; paste</h4><p>move, duplicate and restack objects, edit their properties, paste png/jpeg straight from the clipboard onto the canvas.</p></div>
+          <div><h4>tablet, pen &amp; touch</h4><p>native zwp_tablet_v2 tablet support with pen pressure, on by default. a mouse and a touchscreen also work.</p></div>
+          <div><h4>multi-monitor</h4><p>a shortcut hops the overlay between outputs, toolbars follow the active display, and each output keeps its own session.</p></div>
+          <div><h4>searchable help</h4><p>f1 opens clickable, searchable help for every shortcut. esc hides the overlay, same deal as kp1 here.</p></div>
+          <div><h4>make it yours</h4><p>~130 rebindable actions, dark and light chrome, reduced motion, quick colors, presets 1-5. hand-edit the commented toml, or the gtk4 configurator (f11 in the overlay).</p></div>
+          <div><h4>tray, cli &amp; pdf</h4><p>a tray icon, <code class="ic">--daemon-action</code> flags for scripting, and boards that export as multi-page pdf.</p></div>
+        </div>
+      </div>
+
+      <!-- controls -->
+      <div class="ws-block rv">
+        <div class="ws-block-head"><h3>muscle memory in a dozen shortcuts.</h3><span class="ws-hint">wayscriber's defaults, all rebindable</span></div>
+        <div class="ctrls">
+          <div class="crow"><span>draw (pen)</span><span class="keys"><kbd>drag</kbd></span></div>
+          <div class="crow"><span>command palette</span><span class="keys"><kbd>ctrl</kbd><i>+</i><kbd>k</kbd></span></div>
+          <div class="crow"><span>straight line</span><span class="keys"><kbd>shift</kbd><i>+</i><kbd>drag</kbd></span></div>
+          <div class="crow"><span>toolbars / top-strip cycle</span><span class="keys"><kbd>f9</kbd><i>/</i><kbd>f2</kbd></span></div>
+          <div class="crow"><span>rectangle</span><span class="keys"><kbd>ctrl</kbd><i>+</i><kbd>drag</kbd></span></div>
+          <div class="crow"><span>zoom</span><span class="keys"><kbd>ctrl</kbd><i>+</i><kbd>alt</kbd><i>+</i><kbd>scroll</kbd></span></div>
+          <div class="crow"><span>arrow</span><span class="keys"><kbd>ctrl</kbd><i>+</i><kbd>shift</kbd><i>+</i><kbd>drag</kbd></span></div>
+          <div class="crow"><span>help / hide</span><span class="keys"><kbd>f1</kbd><i>/</i><kbd>esc</kbd></span></div>
+          <div class="crow"><span>text / sticky note</span><span class="keys"><kbd>t</kbd><i>/</i><kbd>n</kbd></span></div>
+          <div class="crow"><span>select &amp; move</span><span class="keys"><kbd>v</kbd><i>or</i><kbd>alt</kbd><i>+</i><kbd>drag</kbd></span></div>
+          <div class="crow"><span>colors</span><span class="keys"><kbd>r</kbd><kbd>g</kbd><kbd>b</kbd><kbd>y</kbd><kbd>o</kbd><kbd>p</kbd><kbd>w</kbd><kbd>k</kbd></span></div>
+          <div class="crow"><span>apply / save presets</span><span class="keys"><kbd>1</kbd>-<kbd>5</kbd><i>/</i><kbd>shift</kbd><i>+</i><kbd>1</kbd>-<kbd>5</kbd></span></div>
+          <div class="crow"><span>screen eyedropper</span><span class="keys"><kbd>i</kbd></span></div>
+          <div class="crow"><span>undo / redo</span><span class="keys"><kbd>ctrl</kbd><i>+</i><kbd>z</kbd><i>/</i><kbd>ctrl</kbd><i>+</i><kbd>y</kbd></span></div>
+        </div>
+        <p class="ctrl-note">these are wayscriber's own keys, read while the overlay holds focus: <b>exactly the mechanism this repo borrows for kp2-kp7/9/0</b>. the numpad keeps ten of them; the rest stay right where they are.</p>
+      </div>
+
+      <!-- compatibility -->
+      <div class="ws-block rv">
+        <div class="ws-block-head"><h3>works with your compositor.</h3></div>
+        <div class="compat">
+          <div class="comp"><h4><span class="mk ok">✓</span> full support</h4><p>all the features work on a compositor that supports wlr-layer-shell, including light passthrough.</p><ul><li>Hyprland</li><li>Sway</li><li>River</li><li>Wayfire</li><li>Niri</li><li>COSMIC</li><li class="hot">KDE Plasma / KWin</li></ul></div>
+          <div class="comp"><h4><span class="mk part">◐</span> partial</h4><p>GNOME uses an xdg-fullscreen fallback: the normal overlay works, and screen freeze works through the portal. light passthrough isn't possible on standard GNOME Wayland.</p><ul><li>GNOME</li></ul></div>
+          <div class="comp"><h4><span class="mk no">✕</span> not supported</h4><p>Wayland-native by design. this repo targets KDE Plasma, so you're in the green column.</p><ul><li>X11</li></ul></div>
+        </div>
+      </div>
+
+      <!-- performance -->
+      <div class="ws-block rv">
+        <div class="ws-block-head"><h3>fast by default.</h3><span class="ws-hint">ink that keeps up with your hand</span></div>
+        <div class="perf">
+          <div class="perf-txt">
+            <p>Native Wayland, native code: a Rust binary drawing directly to layer-shell surfaces. <b>No Electron, no webview, no compositor trick.</b> Vsync is off with a 120 FPS cap for low-latency ink; in local input-to-commit measurements, p95 and p99 stayed near 8-9 ms during continuous drawing.</p>
+            <p><b>Always warm.</b> wayscriber runs as a daemon: the overlay opens with no cold start and no splash screen. <b>Tunable:</b> turn vsync on for tear-free rendering or quieter fans, and raise the cap to 144 or 240 on a fast display.</p>
+            <p class="perf-note">this latency is input-sample → wayland surface commit, not end-to-end display latency. set <b>WAYSCRIBER_PERF_LOG=1</b> to measure it yourself.</p>
+          </div>
+          <div class="wscode">
+            <div class="wscode-bar"><span>config.toml</span><button class="copy" data-copy="[performance]
+buffer_count = 3          # balanced buffering
+enable_vsync = false      # lower drawing latency
+max_fps_no_vsync = 240    # for a fast display + GPU
+ui_animation_fps = 60     # smoother UI effects"><i data-lucide="copy" class="ic-copy"></i><i data-lucide="check" class="ic-check"></i><span class="lbl">copy</span></button></div>
+            <pre><span class="c"># config.toml</span>
+<span class="k">[performance]</span>
+<span class="k">buffer_count</span> = <span class="v">3</span>          <span class="c"># balanced buffering</span>
+<span class="k">enable_vsync</span> = <span class="v">false</span>      <span class="c"># lower drawing latency</span>
+<span class="k">max_fps_no_vsync</span> = <span class="v">240</span>    <span class="c"># for a fast display + GPU</span>
+<span class="k">ui_animation_fps</span> = <span class="v">60</span>     <span class="c"># smoother UI effects</span></pre>
+            <div class="wscode-cap">defaults: 120 fps drawing · 30 fps ui effects · buffer_count 3 (more buffers use more memory and don't raise the cap).</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ethos + bridge -->
+      <div class="ethos rv">
+        <p>“wayscriber is shared as a gift exchange, not a contract.”</p>
+        <span>free, MIT-licensed, and in active development. no guaranteed timelines, no guaranteed support. contributions welcome, especially compositor tests, multi-monitor reports, and new drawing tools.</span>
+      </div>
+      <p class="ws-bridge rv">upstream ships native packages for Debian, Ubuntu, Fedora, the AUR and Nix. <b>this repo</b> builds the same binary from source in Docker (no AUR helper, nothing touching your host but the finished binary) and points ten numpad keys at it. <a href="#install">that part is up in section 03.</a></p>
+    </div>
+  </section>
+
+  <!-- ================= troubleshooting ================= -->
+  <section class="sec" id="help">
+    <div class="wrap">
+      <div class="sec-head rv"><span class="sec-idx">05</span><h2 class="sec-title">If something's off.</h2><span class="sec-note">seven known shapes of "off"</span></div>
+      <div class="rv" style="--d:.06s">
+        <div class="tr-row"><h4>"needs a Wayland session"</h4><p>You're in KDE's X11 session (<code class="ic">XDG_SESSION_TYPE=x11</code>). Log out, pick <b>Plasma (Wayland)</b> in SDDM, log back in. wayscriber's layer-shell overlay cannot appear on X11; <code class="ic">./wayscriber.sh status</code> prints the detected session.</p></div>
+        <div class="tr-row"><h4>Numpad keys do nothing</h4><p>Check <b>Num Lock is on</b> (KP2-KP7/9/0 need it). Watch the raw layer with <code class="ic">sudo keyd monitor</code>: press the keys and confirm keyd sees <code class="ic">kp0-kp9</code>. Then <code class="ic">./wayscriber.sh status</code> to check keyd is up and Drawing Mode is on.</p></div>
+        <div class="tr-row"><h4>Overlay won't show after KP1</h4><p><code class="ic">journalctl --user -u wayscriber-numpad.service -n 50</code> holds wayscriber's log. Also check <code class="ic">./wayscriber.sh status</code>.</p></div>
+        <div class="tr-row"><h4>Drawing Mode didn't start</h4><p>Nothing was changed; the numpad still types numbers. <code class="ic">./wayscriber.sh start</code> (or the popup) names the likely cause: another wayscriber already running (exit 75), keyd not running, or no Wayland session. Otherwise log out and back in (e.g. just added to the <code class="ic">keyd</code> group). A hung start or stop gives up after 20 s / 5 s.</p></div>
+        <div class="tr-row"><h4>Overlay looks blurry on KDE</h4><p>The "Better Blur" desktop effect blurs layer-shell surfaces, a documented wayscriber × KWin interaction, not a bug in this wiring. The fix is the window-rule exclusion in wayscriber's own troubleshooting docs.</p></div>
+        <div class="tr-row"><h4>keyd itself crashed</h4><p><code class="ic">systemctl status keyd</code> · <code class="ic">journalctl -u keyd</code>. This wiring only ever calls <code class="ic">keyd bind</code> / <code class="ic">keyd bind reset</code>, and the reset runs when Drawing Mode stops, even after a crash, so it never leaves the daemon in a half-bound state.</p></div>
+        <div class="tr-row"><h4>Fedora: keyd denied by SELinux</h4><p>The build bind mount already carries <code class="ic">:Z</code> and install runs <code class="ic">restorecon</code> over the source-built keyd files. If keyd is still denied, check <code class="ic">sudo ausearch -m avc -ts recent</code> before blaming the numpad wiring.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= footer ================= -->
+<footer>
+  <div class="wrap">
+    <div class="ft">
+      <div>
+        <div class="mini-pad" aria-hidden="true">
+          <span>7</span><span>8</span><span>9</span><span>4</span><span>5</span><span>6</span><span class="r">1</span><span>2</span><span>3</span><span>0</span><span class="y">✎</span>
+        </div>
+        <p class="ft-tag"><b>wayscriber</b> does the drawing.<br><b>keyd</b> does the listening.<br>The numpad does the rest.</p>
+      </div>
+      <div>
+        <div class="subhead">Learn more</div>
+        <ul class="ft-links">
+          <li><a href="https://github.com/devmobasa/wayscriber" target="_blank" rel="noopener"><i data-lucide="external-link"></i>github.com/devmobasa/wayscriber <small>: source &amp; docs</small></a></li>
+          <li><a href="https://wayscriber.com" target="_blank" rel="noopener"><i data-lucide="external-link"></i>wayscriber.com <small>: the software itself</small></a></li>
+          <li><a href="https://deepwiki.com/devmobasa/wayscriber" target="_blank" rel="noopener"><i data-lucide="external-link"></i>deepwiki.com/devmobasa/wayscriber <small>: deep-dive &amp; Q&amp;A</small></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ft-bar">
+      <span>wayscriber-numpad · numpad-driven tool switching for screen annotation on KDE Plasma (Wayland)</span>
+      <span>no AUR · docker-built · reversible</span>
+    </div>
+  </div>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+/* =========================================================
+   wayscriber-numpad: landing page demo
+   a faithful mini reimplementation of the wiring:
+   KP1/KP8 = "keyd" (live the whole time Drawing Mode is on),
+   the rest only act while the overlay is shown.
+   KP1 shows/hides the whole overlay, ink included
+   (esc works too, like the real thing). KP8 = light
+   passthrough: ink stays visible, dims, AND clicks fall through.
+   ========================================================= */
+
+const TOOLS = {
+  red:    { label:'red pen',      color:'#FF0000', size:5,  ui:'#ff3b30', kind:'pen'    },
+  blue:   { label:'blue pen',     color:'#0000FF', size:5,  ui:'#5a7dff', kind:'pen'    },
+  dark:   { label:'dark pen',     color:'#222222', size:3,  ui:'#9aa3ad', kind:'pen'    },
+  hl:     { label:'highlighter',  color:'#FFFF00', size:20, ui:'#ffd52e', kind:'hl'     },
+  eraser: { label:'eraser',       color:null,      size:50, ui:'#e8e9ec', kind:'eraser' }
+};
+const KEY      = { '1':'overlay','2':'undo','3':'redo','4':'dark','5':'hl','6':'eraser','7':'clear','8':'dim','9':'red','0':'blue' };
+const TOOLKEY  = { red:'9', blue:'0', dark:'4', hl:'5', eraser:'6' };
+const BASE_W   = 760;
+
+const state = { wiring:true, overlay:false, dim:false };
+let cur = 'red', curPen = 'red';
+let undoStack = [], redoStack = [];
+let live = null, drawing = false;
+
+const RM = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+if (RM) document.body.classList.add('rm');
+
+const $ = s => document.querySelector(s);
+const numpad  = $('#numpad');
+const disp    = $('#display');
+const screenEl= $('#screenEl');
+const ro      = $('#ro');
+const chip    = $('#chip');
+const ledTxt  = $('#ledTxt');
+const badgeEl = $('#badge');
+const wireEl  = $('#wireToggle');
+const dcv     = $('#desk');
+const icv     = $('#ink');
+const off     = document.createElement('canvas');
+const wsbar   = $('#wsbar');
+const tbPen   = $('#tbPen'),   tbHl    = $('#tbHl'),    tbEr    = $('#tbEr');
+const tbUndo  = $('#tbUndo'),  tbRedo  = $('#tbRedo'),  tbClear = $('#tbClear');
+const keyEls  = {};
+document.querySelectorAll('.key[data-k]').forEach(el => keyEls[el.dataset.k] = el);
+
+let W = 0, H = 0, DPR = 1, SCALE = 1;
+
+function sizeCanvases(){
+  const r = disp.getBoundingClientRect();
+  W = Math.max(1, Math.round(r.width));
+  H = Math.max(1, Math.round(r.height));
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  [dcv, icv, off].forEach(c => { c.width = Math.round(W*DPR); c.height = Math.round(H*DPR); });
+  SCALE = W / BASE_W;
+  disp.style.setProperty('--u', (W/100)+'px');
+}
+const dctx = () => { const x = dcv.getContext('2d'); x.setTransform(DPR,0,0,DPR,0,0); return x; };
+const ictx = () => { const x = icv.getContext('2d'); x.setTransform(DPR,0,0,DPR,0,0); return x; };
+const octx = () => { const x = off.getContext('2d'); x.setTransform(DPR,0,0,DPR,0,0); return x; };
+
+function rr(g,x,y,w,h,r){
+  g.beginPath();
+  if (g.roundRect) { g.roundRect(x,y,w,h,r); return; }
+  g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r);
+  g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath();
+}
+
+/* ---------- the fake plasma desktop ---------- */
+function drawDesktop(){
+  const g = dctx();
+  const F = Math.max(.45, W/700);
+  g.clearRect(0,0,W,H);
+  g.fillStyle = '#e8e6e0';
+  g.fillRect(0,0,W,H);
+
+  const win = (x,y,w,h,bg,title,dark) => {
+    const TH = Math.max(20, 32*F);
+    g.save(); g.shadowColor='rgba(25,28,34,.22)'; g.shadowBlur=16*F; g.shadowOffsetY=5*F;
+    g.fillStyle=bg; rr(g,x,y,w,h,8*F); g.fill(); g.restore();
+    g.fillStyle = dark ? '#232630' : '#f2f1ed';
+    rr(g,x,y,w,TH,8*F); g.fill(); g.fillRect(x,y+TH/2,w,TH/2);
+    g.fillStyle = dark ? '#3a3f49' : '#dfddd7';
+    g.fillRect(x,y+TH,w,1);
+    for(let i=0;i<3;i++){
+      g.beginPath(); g.arc(x+w-14*F-i*13*F, y+TH/2, Math.max(2,3.5*F), 0, 7);
+      g.strokeStyle = dark ? '#565b66' : '#b9b9b9'; g.lineWidth = 1.5; g.stroke();
+    }
+    g.fillStyle = dark ? '#9aa0ab' : '#6f6f6f';
+    g.font = '500 '+Math.max(4,9.5*F)+'px "JetBrains Mono", monospace';
+    g.textAlign='left'; g.textBaseline='alphabetic';
+    g.fillText(title, x+12*F, y+TH*.63);
+  };
+
+  const mx=W*.06, my=H*.10, mw=W*.54, mh=H*.62;
+  win(mx,my,mw,mh,'#ffffff','Q4 review - presentation', false);
+  const px=mx+20*F, py=my+52*F, pw=mw-40*F, ph=mh-66*F;
+  g.fillStyle='#232428'; g.font='700 '+Math.max(7,W*.021)+'px "Space Grotesk", sans-serif';
+  g.fillText('Revenue by quarter', px, py+10*F);
+  g.fillStyle='#9b9ea5'; g.font='500 '+Math.max(4,9*F)+'px "JetBrains Mono", monospace';
+  g.fillText('FY24 · consolidated · USD m', px, py+26*F);
+  const n=5, slot=pw/n, barW=slot*.55, base=py+ph-26*F;
+  const hs=[.30,.44,.38,.60,.82], vals=['8.2','11.9','10.4','16.7','22.3'];
+  for(let i=0;i<n;i++){
+    const bh=hs[i]*(ph-72*F), bx=px+i*slot+slot*.1;
+    g.fillStyle = i===n-1 ? '#e04434' : '#c6c9cf';
+    rr(g,bx,base-bh,barW,bh,3); g.fill();
+    g.fillStyle='#8d9097'; g.font='500 '+Math.max(4,8.5*F)+'px "JetBrains Mono", monospace'; g.textAlign='center';
+    g.fillText(vals[i], bx+barW/2, base+13*F);
+  }
+  g.textAlign='left';
+  g.fillStyle='#d9dadd'; g.fillRect(px,base+2*F,pw,1);
+  g.fillStyle='#a2a5ab'; g.font='400 '+Math.max(4,8.5*F)+'px "JetBrains Mono", monospace';
+  g.fillText('source: finance / internal', px, base+27*F);
+
+  const tx=W*.655, ty=H*.16, tw=W*.295, th=H*.42;
+  win(tx,ty,tw,th,'#17181c','konsole - zsh', true);
+  const lx=tx+14*F; let ly=ty+58*F;
+  const tline=(txt,c)=>{ g.fillStyle=c; g.font='400 '+Math.max(4,9.5*F)+'px "JetBrains Mono", monospace'; g.fillText(txt,lx,ly); ly+=17*F; };
+  tline('> echo $XDG_SESSION_TYPE', '#c9cdd4');
+  tline('wayland', '#8f949c');
+  tline('> ./wayscriber.sh start', '#c9cdd4');
+  tline('ok: Drawing Mode is on', '#e2604f');
+  g.fillStyle='#e2604f'; g.fillRect(lx, ly-11*F, Math.max(4,6*F), Math.max(7,10*F));
+
+  const tb=Math.max(22,34*F), isz=Math.max(11,18*F);
+  g.fillStyle='#dad8d2'; g.fillRect(0,H-tb,W,tb);
+  g.fillStyle='#cccbc5'; g.fillRect(0,H-tb,W,1);
+  for(let i=0;i<4;i++){
+    g.fillStyle = i===2 ? '#9298a1' : '#a7abb2';
+    rr(g, 14+i*isz*2, H-tb/2-isz/2, isz, isz, 4); g.fill();
+  }
+  const iw=Math.max(6,12*F);
+  g.fillStyle='#e04434'; g.fillRect(14+2*isz*2+(isz-iw)/2, H-5, iw, 2.5);
+  g.fillStyle='#6e6e6e'; g.font='500 '+Math.max(4,9.5*F)+'px "JetBrains Mono", monospace'; g.textAlign='right';
+  g.fillText('Wed 21:47', W-14, H-tb/2+3.5*Math.min(1,F));
+  g.textAlign='left';
+}
+
+/* ---------- ink engine ---------- */
+function strokeOn(g, s){
+  const pts=s.pts, n=pts.length; if(!n) return;
+  g.save();
+  g.lineCap='round'; g.lineJoin='round';
+  g.lineWidth = s.size * SCALE;
+  if (s.kind==='eraser'){ g.globalCompositeOperation='destination-out'; g.strokeStyle='#000'; g.fillStyle='#000'; }
+  else { g.globalAlpha = s.kind==='hl' ? .15 : 1; g.strokeStyle=s.color; g.fillStyle=s.color; }
+  if (n===1){ g.beginPath(); g.arc(pts[0][0]*W, pts[0][1]*H, g.lineWidth/2, 0, 7); g.fill(); }
+  else {
+    g.beginPath(); g.moveTo(pts[0][0]*W, pts[0][1]*H);
+    for(let i=1;i<n;i++) g.lineTo(pts[i][0]*W, pts[i][1]*H);
+    g.stroke();
+  }
+  g.restore();
+}
+function blit(){ const x=ictx(); x.clearRect(0,0,W,H); x.drawImage(off,0,0,W,H); }
+function rebuild(){
+  const x=octx(); x.clearRect(0,0,W,H);
+  for (const e of undoStack){ if (e.t==='s') strokeOn(x,e.s); else x.clearRect(0,0,W,H); }
+  blit();
+}
+function renderAll(){ drawDesktop(); rebuild(); updateChip(); }
+
+function pos(e){ const r=disp.getBoundingClientRect(); return { x:e.clientX-r.left, y:e.clientY-r.top }; }
+function newStroke(p){ const t=TOOLS[cur]; return { kind:t.kind, color:t.color, size:t.size, pts:[[p.x/W, p.y/H]] }; }
+
+function renderLive(){
+  if (!live) return;
+  if (live.kind==='eraser'){ strokeOn(octx(), live); blit(); }
+  else { const x=ictx(); x.clearRect(0,0,W,H); x.drawImage(off,0,0,W,H); strokeOn(x, live); }
+}
+function commit(){
+  if (!live) return;
+  if (live.kind!=='eraser') strokeOn(octx(), live);
+  undoStack.push({ t:'s', s:live }); redoStack = [];
+  live = null; blit();
+  updateBarActions();
+}
+
+/* light passthrough: clicks ripple through to the apps below */
+let hintedCT = false;
+function clickRipple(e){
+  const r = disp.getBoundingClientRect();
+  const d = document.createElement('div');
+  d.className = 'ripple';
+  d.style.left = (e.clientX - r.left)+'px';
+  d.style.top  = (e.clientY - r.top)+'px';
+  disp.appendChild(d);
+  setTimeout(() => d.remove(), 560);
+}
+
+disp.addEventListener('pointerdown', e => {
+  if (state.dim && state.wiring && state.overlay){
+    clickRipple(e);
+    if (!hintedCT){ hintedCT = true; toast('light passthrough: the click landed on the app below'); }
+    return;
+  }
+  if (!state.wiring || !state.overlay || drawing) return;
+  if (e.target.closest('.wsbar')) return;
+  e.preventDefault();
+  try { disp.setPointerCapture(e.pointerId); } catch(_){}
+  drawing = true;
+  live = newStroke(pos(e));
+  renderLive();
+});
+disp.addEventListener('pointermove', e => {
+  moveChip(e);
+  if (!drawing || !live) return;
+  const p = pos(e);
+  live.pts.push([p.x/W, p.y/H]);
+  renderLive();
+});
+const endStroke = () => { if (drawing){ commit(); drawing = false; } };
+disp.addEventListener('pointerup', endStroke);
+disp.addEventListener('pointercancel', endStroke);
+disp.addEventListener('pointerleave', () => { chip.style.display='none'; });
+
+/* ---------- tool cursor chip ---------- */
+function updateChip(){
+  const t = TOOLS[cur];
+  const s = Math.max(10, Math.min(64, t.size * SCALE));
+  chip.style.width = chip.style.height = s+'px';
+  if (t.kind==='eraser'){ chip.className='chip er'; chip.style.borderColor='#454a52'; chip.style.borderStyle='dashed'; chip.style.background='transparent'; }
+  else if (t.kind==='hl'){ chip.className='chip hl'; chip.style.borderStyle='solid'; chip.style.borderColor='#d9b400'; chip.style.background='rgba(255,213,46,.30)'; }
+  else { chip.className='chip pen'; chip.style.borderStyle='solid'; chip.style.borderColor=t.color; chip.style.background='transparent'; chip.style.setProperty('--cc', t.color); }
+}
+function moveChip(e){
+  if (!state.overlay || state.dim || e.target.closest('.wsbar')){ chip.style.display='none'; return; }
+  const r = disp.getBoundingClientRect();
+  chip.style.left = (e.clientX - r.left)+'px';
+  chip.style.top  = (e.clientY - r.top)+'px';
+  chip.style.display = 'flex';
+}
+
+/* ---------- readout & toast ---------- */
+function readout(html){ ro.innerHTML = html; }
+let toastT;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+/* ---------- actions ---------- */
+function setTool(t, src){
+  cur = t;
+  if (TOOLS[t].kind === 'pen') curPen = t;
+  document.querySelectorAll('.key[data-k]').forEach(k => {
+    k.classList.remove('active');
+    const led = k.querySelector('.led'); if (led) led.style.background='';
+  });
+  const el = keyEls[TOOLKEY[t]];
+  el.classList.add('active');
+  el.style.setProperty('--kc', TOOLS[t].ui);
+  el.querySelector('.led').style.background = TOOLS[t].ui;
+  const T = TOOLS[t];
+  const hex = T.color
+    ? ' · <span style="color:'+(t==='dark'?'#9aa3ad':T.color)+'">'+T.color.toLowerCase()+'</span> · size '+T.size
+    : ' · size '+T.size;
+  const pfx = src === 'bar' ? 'toolbar' : 'kp'+TOOLKEY[t];
+  readout('<b>'+pfx+'</b> → <span class="tt">'+T.label+'</span>'+hex+'<span class="dm"> · draw on the screen</span>');
+  tbPen.classList.toggle('on', T.kind === 'pen');
+  tbHl.classList.toggle('on', t === 'hl');
+  tbEr.classList.toggle('on', t === 'eraser');
+  wsbar.querySelectorAll('.cd').forEach(d => d.classList.toggle('on', d.dataset.tool === t));
+  updateChip();
+}
+let hintedDigits = false, hintedOff = false;
+function digitFeedback(k){
+  if (state.wiring){
+    readout("<b>kp"+k+"</b> → <span class=\"tt\">'"+k+"'</span><span class=\"dm\"> · overlay hidden, digits just type</span>");
+    if (!hintedDigits){ hintedDigits = true; toast('while the overlay is hidden, the numpad types digits'); }
+  } else {
+    readout("<b>kp"+k+"</b> → <span class=\"tt\">'"+k+"'</span><span class=\"dm\"> · Drawing Mode off, turn it on to rebind</span>");
+    if (!hintedOff){ hintedOff = true; toast('Drawing Mode is off. Flip the switch above the pad'); }
+  }
+}
+function updateBadge(){
+  badgeEl.innerHTML = state.wiring
+    ? 'overlay hidden · <b>press 1</b> to draw'
+    : 'Drawing Mode off · numpad types digits';
+}
+function showOverlay(auto){
+  state.overlay = true;
+  numpad.classList.add('armed');
+  disp.classList.add('on');
+  screenEl.classList.add('armed');
+  keyEls['1'].classList.remove('pulse');
+  ledTxt.textContent = 'overlay on';
+  setTool(cur);
+  if (!auto) toast('overlay shown · the toolbar is clickable · esc hides it too');
+}
+function hideOverlay(auto){
+  state.overlay = false;
+  numpad.classList.remove('armed');
+  disp.classList.remove('on');
+  screenEl.classList.remove('armed');
+  if (state.wiring) keyEls['1'].classList.add('pulse');
+  chip.style.display = 'none';
+  ledTxt.textContent = 'overlay off';
+  if (!auto){
+    readout('<b>kp1</b> → overlay hidden · <span class="tt">ink and toolbar off screen</span>');
+    toast('overlay hidden · press 1 to bring it back');
+  }
+}
+function toggleOverlay(auto){
+  state.overlay ? hideOverlay(auto) : showOverlay(auto);
+}
+function demoScribble(){
+  const pts = [];
+  for (let i=0; i<=24; i++){
+    const t = i/24;
+    pts.push([.18 + t*.5, .42 + Math.sin(t*Math.PI*2.2)*.09]);
+  }
+  const s = { kind:'pen', color:TOOLS.red.color, size:TOOLS.red.size, pts };
+  strokeOn(octx(), s);
+  undoStack.push({ t:'s', s }); redoStack = [];
+  blit(); updateBarActions();
+}
+/* KP8, light passthrough: the ink dims AND clicks fall through */
+function toggleDim(){
+  state.dim = !state.dim;
+  disp.classList.toggle('dimmed', state.dim);
+  let pre = '';
+  if (state.dim && isBlank()){
+    demoScribble();
+    pre = '<span class="dm">nothing to dim yet · scribbled a sample · </span>';
+  }
+  readout(pre+'<b>kp8</b> → '+(state.dim
+    ? '<span class="tt">light passthrough on</span> · ink dimmed, clicks pass through'
+    : '<span class="tt">light passthrough off</span> · full ink, clicks draw'));
+  toast(state.dim ? 'clicks now fall through to your apps · kp8 always works' : 'back to drawing');
+}
+function isBlank(){ return !undoStack.length || undoStack[undoStack.length-1].t === 'c'; }
+function updateBarActions(){
+  tbUndo.disabled  = !undoStack.length;
+  tbRedo.disabled  = !redoStack.length;
+  tbClear.disabled = isBlank();
+}
+function doUndo(){
+  if (!undoStack.length){ readout('<b>kp2</b> → undo <span class="dm">· nothing left</span>'); toast('nothing to undo'); return; }
+  redoStack.push(undoStack.pop()); rebuild(); updateBarActions();
+  readout('<b>kp2</b> → undo <span class="dm">· '+undoStack.length+' step'+(undoStack.length===1?'':'s')+' under</span>');
+  toast('undo');
+}
+function doRedo(){
+  if (!redoStack.length){ readout('<b>kp3</b> → redo <span class="dm">· nothing to redo</span>'); toast('nothing to redo'); return; }
+  undoStack.push(redoStack.pop()); rebuild(); updateBarActions();
+  readout('<b>kp3</b> → redo <span class="dm">· '+redoStack.length+' step'+(redoStack.length===1?'':'s')+' left</span>');
+  toast('redo');
+}
+function doClear(){
+  if (isBlank()){ toast('canvas already blank'); readout('<b>kp7</b> → clear <span class="dm">· already blank</span>'); return; }
+  undoStack.push({ t:'c' }); redoStack = []; rebuild(); updateBarActions();
+  readout('<b>kp7</b> → canvas cleared <span class="dm">· kp2 brings it back</span>');
+  toast('canvas cleared · kp2 restores it');
+}
+
+function handleAction(k){
+  if (!state.wiring){ digitFeedback(k); return; }
+  const a = KEY[k];
+  if (a === 'overlay'){ toggleOverlay(); return; }
+  if (a === 'dim'){ toggleDim(); return; }
+  if (!state.overlay){ digitFeedback(k); return; }
+  if (a === 'undo') doUndo();
+  else if (a === 'redo') doRedo();
+  else if (a === 'clear') doClear();
+  else setTool(a);
+}
+
+/* the Drawing Mode on/off switch: start / stop */
+function wireUpdate(){
+  wireEl.classList.toggle('off', !state.wiring);
+  wireEl.setAttribute('aria-pressed', String(state.wiring));
+  wireEl.querySelector('.w-txt').innerHTML = 'Drawing Mode: <b>'+(state.wiring?'on':'off')+'</b>';
+  wireEl.querySelector('.w-cmd').textContent = '$ ./wayscriber.sh '+(state.wiring?'stop':'start');
+}
+function toggleWiring(){
+  state.wiring = !state.wiring;
+  endStroke();
+  if (!state.wiring && state.overlay) hideOverlay(true);
+  if (!state.wiring && state.dim){ state.dim = false; disp.classList.remove('dimmed'); }
+  disp.classList.toggle('stopped', !state.wiring);
+  if (state.wiring){
+    keyEls['1'].classList.add('on');
+    keyEls['8'].classList.add('on');
+    if (!state.overlay) keyEls['1'].classList.add('pulse');
+    readout('<b>start</b> → wayscriber up, ink restored · kp1 &amp; kp8 live again, press 1');
+    toast('Drawing Mode is on. Press 1 to start drawing');
+  } else {
+    keyEls['1'].classList.remove('pulse');
+    keyEls['1'].classList.remove('on');
+    keyEls['8'].classList.remove('on');
+    readout('<b>stop</b> → wayscriber stopped · keyd bindings reset · every key types digits');
+    toast('Drawing Mode is off. Ink saved for the next start');
+  }
+  wireUpdate();
+  updateBadge();
+}
+wireEl.addEventListener('click', toggleWiring);
+
+/* source: 'pad' | 'row' | 'key' */
+function pressKey(k, source){
+  const el = keyEls[k]; if (!el) return;
+  if (source === 'row' && state.wiring && !state.overlay && KEY[k] !== 'overlay' && KEY[k] !== 'dim') toggleOverlay(true);
+  el.classList.add('pressed');
+  clearTimeout(el._pt);
+  el._pt = setTimeout(() => el.classList.remove('pressed'), source === 'key' ? 600 : 170);
+  handleAction(k);
+}
+
+numpad.addEventListener('click', e => {
+  const el = e.target.closest('.key[data-k]');
+  if (el) pressKey(el.dataset.k, 'pad');
+});
+
+tbPen.addEventListener('click', () => setTool(curPen, 'bar'));
+tbHl .addEventListener('click', () => setTool('hl', 'bar'));
+tbEr .addEventListener('click', () => setTool('eraser', 'bar'));
+wsbar.querySelectorAll('.cd').forEach(d => d.addEventListener('click', () => setTool(d.dataset.tool, 'bar')));
+tbUndo .addEventListener('click', doUndo);
+tbRedo .addEventListener('click', doRedo);
+tbClear.addEventListener('click', doClear);
+
+/* ---------- physical keyboard ---------- */
+let demoInView = false;
+new IntersectionObserver(es => es.forEach(en => demoInView = en.isIntersecting), { threshold:.1 })
+  .observe($('#try'));
+
+function keyDigit(e){
+  if (e.code && /^Numpad\d$/.test(e.code)) return (e.getModifierState && e.getModifierState('NumLock')) ? e.code[6] : null;
+  if (/^[0-9]$/.test(e.key)) return e.key;
+  return null;
+}
+window.addEventListener('keydown', e => {
+  if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+  /* esc hides the overlay, same as the real wayscriber */
+  if (e.key === 'Escape' && demoInView && state.wiring && state.overlay){
+    e.preventDefault();
+    hideOverlay();
+    return;
+  }
+  const d = keyDigit(e);
+  if (d === null) return;
+  e.preventDefault();
+  if (!demoInView){
+    $('#try').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' });
+    setTimeout(() => pressKey(d, 'key'), RM ? 100 : 600);
+    return;
+  }
+  pressKey(d, 'key');
+});
+window.addEventListener('keyup', e => {
+  const d = keyDigit(e);
+  if (d === null) return;
+  const el = keyEls[d];
+  if (el){ clearTimeout(el._pt); el.classList.remove('pressed'); }
+});
+
+/* ---------- keymap rows ---------- */
+document.querySelectorAll('.map-row').forEach(row => {
+  const go = () => {
+    $('#try').scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block:'center' });
+    setTimeout(() => pressKey(row.dataset.k, 'row'), RM ? 100 : 700);
+  };
+  row.addEventListener('click', go);
+  row.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+});
+
+/* ---------- copy buttons ---------- */
+document.querySelectorAll('.copy').forEach(btn => {
+  const lbl = btn.querySelector('.lbl');
+  btn.addEventListener('click', async () => {
+    const txt = btn.dataset.copy;
+    try { await navigator.clipboard.writeText(txt); }
+    catch(_) {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); } catch(__){}
+      ta.remove();
+    }
+    btn.classList.add('done'); lbl.textContent = 'copied';
+    setTimeout(() => { btn.classList.remove('done'); lbl.textContent = 'copy'; }, 1400);
+  });
+});
+
+/* ---------- scroll reveals ---------- */
+const io = new IntersectionObserver(es => es.forEach(en => {
+  if (en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+}), { threshold:.12 });
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+
+/* ---------- resize ---------- */
+let rT;
+new ResizeObserver(() => {
+  clearTimeout(rT);
+  rT = setTimeout(() => { sizeCanvases(); renderAll(); }, 90);
+}).observe(disp);
+
+/* =========================================================
+   wayscriber section: block A: the layer diagram
+   ========================================================= */
+const stackBox = $('#stackBox');
+const mxG = $('#mx'), mlG = $('#ml');
+const stackCap = $('#stackCap');
+const stackCaps = {
+  x: '<b>An X11 overlay app:</b> asking for a click-through overlay from inside XWayland. The window existed at the right size and claimed to accept input, but KWin never sent the pointer to it. Not fixable from the app side.',
+  l: '<b>wayscriber:</b> asks KWin directly for a <b>wlr-layer-shell</b> surface, the same mechanism the panel and notifications use. Placement, input routing and click-through are the compositor\u2019s job, and solved. No XWayland in the path.'
+};
+function playStack(){
+  const mode = stackBox.dataset.mode || 'l';
+  mxG.classList.remove('play'); mlG.classList.remove('play');
+  void stackBox.offsetWidth;
+  (mode === 'x' ? mxG : mlG).classList.add('play');
+}
+document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => {
+  stackBox.dataset.mode = b.dataset.mode;
+  document.querySelectorAll('.mode').forEach(x => x.classList.toggle('active', x === b));
+  stackCap.innerHTML = stackCaps[b.dataset.mode];
+  playStack();
+}));
+ $('#stackSvg').addEventListener('click', playStack);
+new IntersectionObserver((es, ob) => {
+  if (es[0].isIntersecting){
+    stackCap.innerHTML = stackCaps[stackBox.dataset.mode || 'l'];
+    playStack();
+    ob.disconnect();
+  }
+}, { threshold:.25 }).observe(stackBox);
+
+/* =========================================================
+   wayscriber section: block B: the capability stage
+   ========================================================= */
+const S = id => document.getElementById(id);
+const capRo   = S('capRo');
+const svBg    = S('sv-bg'),  svGrid = S('sv-grid'), svApps = S('sv-apps'), svZW = S('sv-zoomwrap');
+const svR     = S('sv-r'),   svY    = S('sv-y'),    svB    = S('sv-b'),    svInkG = S('sv-ink');
+const svEg    = S('sv-eg');
+const shEl    = S('sh-el'),  shRectg = S('sh-rectg'), shR   = S('sh-r'),    shArr = S('sh-arr');
+const shHead  = S('sh-head'), shLab  = S('sh-lab');
+const sticky  = S('sv-sticky'), t1 = S('t1'), t2 = S('t2'), tc = S('tc');
+const radial  = S('sv-radial'), ring2 = S('sv-ring2'), penBtn = S('rg-pen'), rcur = S('sv-rcursor');
+const pal     = S('sv-pal'),  palIn = S('pal-in'), palHl = S('pal-hl');
+const palR    = [S('pal-r1'), S('pal-r2'), S('pal-r3')];
+const bchip   = S('sv-boardchip'), bcTxt = S('bc-txt');
+const zchip   = S('sv-zchip'), zPct  = S('zc-pct');
+const hudC    = S('hud-ctrl'), hudP  = S('hud-plus'), hudK = S('hud-k'), hudX = S('hud-x3');
+const rips    = [S('sv-rip1'), S('sv-rip2'), S('sv-rip3')];
+const marq    = S('sv-marq'), flash  = S('sv-flash'), shotG = S('sv-shot');
+const ocrR    = S('sv-ocr'),  ocrL   = S('sv-ocrlab');
+const tlOv1   = S('tl-ov1'),  tlOv2  = S('tl-ov2'), tlInk = S('tl-ink');
+const tlNote  = S('tl-note'), tlBar  = S('tl-bar');
+const trBulb  = S('tr-bulb'), trCam  = S('tr-cam');
+
+const capTimers = [];
+const T = (fn, ms) => capTimers.push(setTimeout(fn, ms));
+const pulse = (el, ms=480) => { if(!el) return; el.classList.add('p'); T(()=>el.classList.remove('p'), ms); };
+const draw   = el => el.classList.add('a-draw');
+const undraw = el => { el.classList.remove('a-draw'); el.classList.add('a-undraw'); };
+const redraw = el => { el.classList.remove('a-undraw'); el.classList.add('a-draw'); };
+const setInk = c => [svR, svY, svB].forEach(p => p.style.stroke = c || '');
+
+function resetCap(){
+  capTimers.forEach(clearTimeout); capTimers.length = 0;
+  [svR, svY, svB, tlInk].forEach(p => { p.classList.remove('a-draw','a-undraw'); p.style.stroke=''; p.style.strokeWidth=''; });
+  svInkG.classList.remove('dim');
+  svEg.classList.remove('wipe');
+  [shEl, shR, shArr, shHead].forEach(p => p.classList.remove('a-draw'));
+  shRectg.classList.remove('sel','moved');
+  shLab.classList.remove('in');
+  sticky.classList.remove('in');
+  [t1, t2, tc].forEach(e => e.classList.remove('in'));
+  radial.classList.remove('in','out'); ring2.classList.remove('spin');
+  penBtn.classList.remove('on'); rcur.classList.remove('run');
+  pal.classList.remove('in'); palIn.textContent = '›';
+  palR.forEach(t => t.textContent = '');
+  palHl.style.opacity = 0; palHl.classList.remove('p'); palHl.setAttribute('y', 106);
+  bchip.classList.remove('in'); bcTxt.textContent = 'board 1/5 · overlay';
+  svZW.classList.remove('zoom','zoompan'); zchip.classList.remove('in'); zPct.textContent = '100%';
+  [hudC, hudP, hudK, hudX].forEach(e => e.classList.remove('in','p'));
+  rips.forEach(r => r.classList.remove('go'));
+  [marq, flash].forEach(e => e.style.opacity = '');
+  [shotG, ocrR, ocrL].forEach(e => e.classList.remove('in'));
+  svBg.style.fill = ''; svGrid.classList.remove('on'); svApps.style.opacity = '';
+  tlOv1.style.opacity = 0; tlOv2.style.opacity = 0; tlNote.style.opacity = 0;
+  tlBar.classList.remove('p');
+  document.querySelectorAll('#capSvg .p').forEach(e => e.classList.remove('p'));
+  capRo.textContent = 'wayscriber idle';
+}
+
+const plays = {
+  ink(){
+    T(()=>draw(svR), 80);
+    T(()=>draw(svY), 650);
+    T(()=>draw(svB), 1150);
+    T(()=>svEg.classList.add('wipe'), 2050);
+    T(()=>undraw(svR), 2200);
+    T(()=>redraw(svR), 3450);
+  },
+  shapes(){
+    T(()=>shEl.classList.add('a-draw'), 60);
+    T(()=>shR.classList.add('a-draw'), 700);
+    T(()=>{ shArr.classList.add('a-draw'); shHead.classList.add('a-draw'); }, 1400);
+    T(()=>shLab.classList.add('in'), 1950);
+    T(()=>shRectg.classList.add('sel'), 2550);
+    T(()=>shRectg.classList.add('moved'), 2950);
+    T(()=>shRectg.classList.remove('moved'), 4000);
+  },
+  text(){
+    T(()=>t1.classList.add('in'), 100);
+    T(()=>t2.classList.add('in'), 750);
+    T(()=>tc.classList.add('in'), 1400);
+    T(()=>sticky.classList.add('in'), 2000);
+  },
+  radial(){
+    T(()=>{ radial.classList.add('in'); ring2.classList.add('spin'); }, 100);
+    T(()=>rcur.classList.add('run'), 150);
+    T(()=>penBtn.classList.add('on'), 1350);
+    T(()=>radial.classList.add('out'), 2750);
+    T(()=>{ radial.classList.remove('in','out'); ring2.classList.remove('spin'); penBtn.classList.remove('on'); rcur.classList.remove('run'); }, 3100);
+  },
+  palette(){
+    T(()=>pal.classList.add('in'), 80);
+    T(()=>{ palIn.textContent='› r'; palR[0].textContent='rectangle'; palR[1].textContent='redo'; palR[2].textContent='recolor object'; }, 600);
+    T(()=>{ palIn.textContent='› red'; palR[0].textContent='redo'; palR[1].textContent='recolor object'; palR[2].textContent=''; }, 1400);
+    T(()=>{ palHl.style.opacity=1; palHl.setAttribute('y',106); }, 2100);
+    T(()=>{ palHl.classList.add('p'); palIn.textContent='› red ⏎'; }, 2800);
+    T(()=>pal.classList.remove('in'), 3500);
+  },
+  boards(){
+    T(()=>draw(svR), 60);
+    T(()=>{ bcTxt.textContent='board 2/5 · whiteboard'; bchip.classList.add('in'); svBg.style.fill='#ffffff'; svApps.style.opacity=0; }, 800);
+    T(()=>{ bcTxt.textContent='board 3/5 · blackboard'; svBg.style.fill='#17181d'; setInk('#f2f2f2'); }, 2000);
+    T(()=>{ bcTxt.textContent='board 4/5 · blueprint';   svBg.style.fill='#0d2f66'; svGrid.classList.add('on'); setInk('#ffffff'); }, 3200);
+    T(()=>{ bcTxt.textContent='board 5/5 · corkboard';   svBg.style.fill='#b98d59'; svGrid.classList.remove('on'); setInk('#2b1f10'); }, 4400);
+    T(()=>{ bchip.classList.remove('in'); svBg.style.fill=''; svApps.style.opacity=''; setInk(''); }, 5600);
+  },
+  zoom(){
+    T(()=>zchip.classList.add('in'), 100);
+    T(()=>{ svZW.classList.add('zoom'); zPct.textContent='150%'; }, 500);
+    T(()=>svZW.classList.add('zoompan'), 1900);
+    T(()=>svZW.classList.remove('zoompan'), 2900);
+    T(()=>{ svZW.classList.remove('zoom'); zPct.textContent='100%'; }, 3800);
+    T(()=>zchip.classList.remove('in'), 4700);
+  },
+  light(){
+    T(()=>draw(svR), 60);
+    T(()=>draw(svY), 520);
+    T(()=>{ svInkG.classList.add('dim'); pulse(trBulb); }, 1400);
+    T(()=>rips[0].classList.add('go'), 1950);
+    T(()=>rips[1].classList.add('go'), 2450);
+    T(()=>svInkG.classList.remove('dim'), 3400);
+    T(()=>{ undraw(svR); undraw(svY); }, 4300);
+  },
+  capture(){
+    T(()=>marq.style.opacity=1, 100);
+    T(()=>shotG.classList.add('in'), 800);
+    T(()=>{ flash.style.opacity=.9; pulse(trCam); }, 1700);
+    T(()=>flash.style.opacity=0, 2050);
+    T(()=>{ marq.style.opacity=0; shotG.classList.remove('in'); }, 2800);
+    T(()=>ocrR.classList.add('in'), 3150);
+    T(()=>ocrL.classList.add('in'), 3700);
+    T(()=>{ ocrR.classList.remove('in'); ocrL.classList.remove('in'); }, 4900);
+  },
+  hud(){
+    T(()=>hudC.classList.add('in'), 100);
+    T(()=>hudP.classList.add('in'), 350);
+    T(()=>hudK.classList.add('in'), 600);
+    T(()=>rips[2].classList.add('go'), 1000);
+    T(()=>{ hudX.classList.add('in'); pulse(hudX, 600); }, 1600);
+    T(()=>{ hudC.classList.remove('in'); hudP.classList.remove('in'); hudK.classList.remove('in'); }, 2900);
+    T(()=>hudX.classList.remove('in'), 3200);
+  },
+  sessions(){
+    T(()=>{ tlBar.classList.add('p'); draw(tlInk); }, 100);
+    T(()=>tlOv1.style.opacity=1, 450);
+    T(()=>tlOv1.style.opacity=0, 1400);
+    T(()=>tlOv2.style.opacity=1, 1700);
+    T(()=>tlOv2.style.opacity=0, 2650);
+    T(()=>tlNote.style.opacity=1, 2850);
+  }
+};
+
+const capRos = {
+  ink:     'pen · highlighter · eraser · freehand ink on a layer above your apps',
+  shapes:  'lines · rects · ellipses · numbered arrows · select, move, restack',
+  text:    'multiline text + sticky notes · place, edit, move, restyle',
+  radial:  'hold middle-click · eight-way compass, recent colors, size ring',
+  palette: 'ctrl+k · fuzzy-search every action, save presets, edit shortcuts',
+  boards:  'overlay · whiteboard · blackboard · blueprint · corkboard · pages per board',
+  zoom:    'ctrl+alt+scroll · zoomit-style zoom with lock and pan, live percent chip',
+  light:   'light passthrough · clicks fall through, your ink stays visible',
+  capture: 'region → clipboard or png · select text → ocr → copy',
+  hud:     'ctrl+shift+k · keystrokes and clicks on screen, held keys fold into ×n',
+  sessions:'one systemd --user unit while Drawing Mode is on: overlays come and go, boards and history survive'
+};
+
+let capIdleT;
+document.querySelectorAll('.cap').forEach(row => {
+  const go = () => {
+    document.querySelectorAll('.cap').forEach(r => r.classList.toggle('active', r === row));
+    resetCap();
+    plays[row.dataset.f]();
+    capRo.textContent = capRos[row.dataset.f];
+  };
+  row.addEventListener('mouseenter', go);
+  row.addEventListener('focus', go);
+  row.addEventListener('click', go);
+  row.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } });
+});
+ $('#capList').addEventListener('mouseleave', () => {
+  clearTimeout(capIdleT);
+  capIdleT = setTimeout(() => {
+    document.querySelectorAll('.cap').forEach(r => r.classList.remove('active'));
+    resetCap();
+  }, 1400);
+});
+ $('#capList').addEventListener('mouseenter', () => clearTimeout(capIdleT));
+new IntersectionObserver((es, ob) => {
+  if (es[0].isIntersecting){ plays.ink(); capRo.textContent = capRos.ink; ob.disconnect(); }
+}, { threshold:.15 }).observe($('#capStage'));
+
+/* ---------- init ---------- */
+if (window.lucide && lucide.createIcons) lucide.createIcons();
+sizeCanvases();
+renderAll();
+setTool('red');
+updateBarActions();
+wireUpdate();
+updateBadge();
+readout('<b>kp1</b> → press to show the overlay');
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawDesktop());
+</script>
+</body>
+</html>

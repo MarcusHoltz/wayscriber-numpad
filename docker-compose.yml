@@ -1,0 +1,13 @@
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        WAYSCRIBER_REF: ${WAYSCRIBER_REF:-main}
+        KEYD_REF: ${KEYD_REF:-v2.6.0}
+    volumes:
+      # :Z gives the container a private SELinux label on Fedora. Docker
+      # ignores it when SELinux is disabled (Debian/Arch), so one file works
+      # everywhere.
+      - ./dist:/out:Z

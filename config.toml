@@ -1,0 +1,93 @@
+# Presets installed by wayscriber.sh into ~/.config/wayscriber/config.toml
+#
+# These map the numpad tool keys (KP4/KP5/KP6/KP9/KP0) onto fixed
+# tool+color+size combos:
+#   red Pen, blue Pen, dark Pen, Highlighter, Eraser
+#
+# wayscriber caps eraser size at 50.0, the largest available.
+
+[presets]
+slot_count = 5
+
+[presets.slot_1]
+name = "Red Pen"
+tool = "pen"
+color = "#FF0000"
+size = 5.0
+
+[presets.slot_2]
+name = "Blue Pen"
+tool = "pen"
+color = "#0000FF"
+size = 5.0
+
+[presets.slot_3]
+name = "Dark Pen"
+tool = "pen"
+color = "#222222"
+size = 3.0
+
+[presets.slot_4]
+name = "Highlighter"
+# `marker` is the translucent drawing highlighter. wayscriber's `highlight`
+# tool is a no-draw click-highlight (a persistent dot), not what we want here.
+tool = "marker"
+color = "#FFFF00"
+size = 20.0
+# marker_opacity is a multiplier on the color alpha (0.05-0.90; upstream
+# default 0.32). 0.15 is a faint yellow wash that text shows through
+# clearly. Lower = more see-through.
+marker_opacity = 0.15
+
+[presets.slot_5]
+name = "Eraser"
+tool = "eraser"
+# color is required by the config format but unused for the eraser tool
+color = "#FF0000"
+size = 50.0
+
+# --daemon-action only accepts a hardcoded set of 10 names (see
+# src/tray_action.rs upstream) and undo/redo/clear_canvas/apply_preset_N
+# are not among them, so keyd cannot trigger them externally. They only
+# fire through wayscriber's own [keybindings] system, which receives real
+# key events while the overlay has keyboard focus (i.e. only while it's
+# shown via KP1, at which point no other app has focus to steal digits
+# from). These map the plain digit characters produced by the physical
+# numpad (with NumLock on) directly to the tool-switch actions.
+[keybindings]
+apply_preset_1 = ["9"]
+apply_preset_2 = ["0"]
+apply_preset_3 = ["4"]
+apply_preset_4 = ["5"]
+apply_preset_5 = ["6"]
+clear_canvas = ["7"]
+undo = ["2"]
+redo = ["3"]
+
+# Tips, popups and on-screen chrome: all off, so recordings show only the
+# drawing. Each is on by default upstream (see config.example.toml there).
+# Set any back to true to re-enable it.
+[ui]
+# first-run guidance, discovery tips, shortcut coaching
+show_onboarding_hints = false
+# warning toast each time the overlay opens
+show_capabilities_warning = false
+# lower-left status bar (monitor, tool, size, "F1 Help"). F12/F4 still
+# toggle it for the current run.
+show_status_bar = false
+# board/page badge; upstream shows it in place of a hidden status bar
+show_floating_badge = false
+
+[ui.toolbar]
+# toast on every preset key (KP4/KP5/KP6/KP9/KP0)
+show_preset_toasts = false
+# lower-right zoom chip ("- 100% + Reset")
+show_zoom_chip = false
+
+[presenter_mode]
+# enter/exit toast
+show_toast = false
+
+[updates]
+# desktop notification per new release (still listed in the tray menu)
+notify = false
