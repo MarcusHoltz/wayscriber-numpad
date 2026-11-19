@@ -1,8 +1,8 @@
 # Presets installed by wayscriber.sh into ~/.config/wayscriber/config.toml
 #
-# These map the numpad tool keys (KP4/KP5/KP6/KP9/KP0) onto fixed
-# tool+color+size combos:
-#   red Pen, blue Pen, dark Pen, Highlighter, Eraser
+# These map the numpad tool keys (KP1-KP5, wayscriber's default preset
+# keys) onto fixed tool+color+size combos:
+#   blue Pen, red Pen, dark Pen, Highlighter, Eraser
 #
 # wayscriber caps eraser size at 50.0, the largest available.
 
@@ -10,15 +10,15 @@
 slot_count = 5
 
 [presets.slot_1]
-name = "Red Pen"
-tool = "pen"
-color = "#FF0000"
-size = 5.0
-
-[presets.slot_2]
 name = "Blue Pen"
 tool = "pen"
 color = "#0000FF"
+size = 5.0
+
+[presets.slot_2]
+name = "Red Pen"
+tool = "pen"
+color = "#FF0000"
 size = 5.0
 
 [presets.slot_3]
@@ -51,18 +51,18 @@ size = 50.0
 # are not among them, so keyd cannot trigger them externally. They only
 # fire through wayscriber's own [keybindings] system, which receives real
 # key events while the overlay has keyboard focus (i.e. only while it's
-# shown via KP1, at which point no other app has focus to steal digits
+# shown via KP0, at which point no other app has focus to steal digits
 # from). These map the plain digit characters produced by the physical
 # numpad (with NumLock on) directly to the tool-switch actions.
 [keybindings]
-apply_preset_1 = ["9"]
-apply_preset_2 = ["0"]
-apply_preset_3 = ["4"]
-apply_preset_4 = ["5"]
-apply_preset_5 = ["6"]
+apply_preset_1 = ["1"]
+apply_preset_2 = ["2"]
+apply_preset_3 = ["3"]
+apply_preset_4 = ["4"]
+apply_preset_5 = ["5"]
 clear_canvas = ["7"]
-undo = ["2"]
-redo = ["3"]
+undo = ["6"]
+redo = ["9"]
 
 # Tips, popups and on-screen chrome: all off, so recordings show only the
 # drawing. Each is on by default upstream (see config.example.toml there).
@@ -79,7 +79,7 @@ show_status_bar = false
 show_floating_badge = false
 
 [ui.toolbar]
-# toast on every preset key (KP4/KP5/KP6/KP9/KP0)
+# toast on every preset key (KP1-KP5)
 show_preset_toasts = false
 # lower-right zoom chip ("- 100% + Reset")
 show_zoom_chip = false

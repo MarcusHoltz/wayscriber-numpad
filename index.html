@@ -144,7 +144,7 @@ kbd{font:700 11px var(--mono);background:#1b1e24;border:1px solid #2c3037;border
 .display .ink{transition:opacity .3s}
 .display.dimmed .ink{opacity:.4}            /* KP8: ink dims…  */
 .display.dimmed .wsbar{pointer-events:none} /* …and clicks fall through, even to the toolbar */
-.display:not(.on):not(.dimmed) .ink{opacity:0} /* KP1 hides the whole overlay, ink included */
+.display:not(.on):not(.dimmed) .ink{opacity:0} /* KP0 hides the whole overlay, ink included */
 .display.stopped .ink{opacity:0}            /* Drawing Mode off: wayscriber stopped, ink saved for next start */
 .badge{position:absolute;left:50%;bottom:6.5%;transform:translateX(-50%);background:rgba(14,15,18,.9);border:1px solid var(--line2);color:var(--sub);font:500 10.5px var(--mono);letter-spacing:.04em;padding:9px 16px;border-radius:99px;pointer-events:none;transition:opacity .2s;white-space:nowrap}
 .badge b{color:var(--red)}
@@ -543,7 +543,7 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
         <div class="chips hup" style="--d:.28s">
           <span>Arch · Debian 13+ · Ubuntu 25.10+ · Fedora</span><span>Plasma · Wayland</span><span>Docker-built</span><span>No AUR</span>
         </div>
-        <p class="hero-hint hup" style="--d:.34s">psst: the number keys on this page are already live. Try pressing <kbd>1</kbd>.</p>
+        <p class="hero-hint hup" style="--d:.34s">psst: the number keys on this page are already live. Try pressing <kbd>0</kbd>.</p>
       </div>
       <div class="hup" style="--d:.26s">
         <div class="term">
@@ -568,7 +568,7 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
   <section class="sec" id="try">
     <div class="wrap">
       <div class="sec-head rv"><span class="sec-idx">01</span><h2 class="sec-title">Play the whole thing.</h2><span class="sec-note">interactive, your real numpad works too</span></div>
-      <p class="lede rv" style="--d:.06s">This is the actual key map, wired to a fake Plasma desktop. Press <kbd>1</kbd> (the pulsing key, bottom-left of the pad) and the overlay appears: a toolbar in the screen's top-left, just like the real one, <b>and it's clickable</b>. Pick a tool, then draw with your mouse. <kbd>8</kbd> is light passthrough: the ink dims and clicks fall through to the apps below. <kbd>1</kbd> or <kbd>Esc</kbd> hides the whole overlay, ink and toolbar. The switch above the pad is <b>Drawing Mode</b> on / off (<code class="ic">start</code> / <code class="ic">stop</code>). Flip it to feel what it does.</p>
+      <p class="lede rv" style="--d:.06s">This is the actual key map, wired to a fake Plasma desktop. Press <kbd>0</kbd> (the pulsing key, bottom-left of the pad) and the overlay appears: a toolbar in the screen's top-left, just like the real one, <b>and it's clickable</b>. Pick a tool, then draw with your mouse. <kbd>8</kbd> is light passthrough: the ink dims and clicks fall through to the apps below. <kbd>0</kbd> or <kbd>Esc</kbd> hides the whole overlay, ink and toolbar. The switch above the pad is <b>Drawing Mode</b> on / off (<code class="ic">start</code> / <code class="ic">stop</code>). Flip it to feel what it does.</p>
 
       <div class="demo-grid rv" style="--d:.12s">
         <div>
@@ -586,19 +586,19 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
 
             <button type="button" class="key" data-k="7" style="grid-area: 2 / 1" aria-label="KP7: clear canvas"><span class="d">7</span><span class="l">clear</span><span class="led"></span></button>
             <button type="button" class="key on" data-k="8" style="grid-area: 2 / 2" aria-label="KP8: toggle light passthrough"><span class="d">8</span><span class="l">light</span><span class="led"></span></button>
-            <button type="button" class="key" data-k="9" style="grid-area: 2 / 3" aria-label="KP9: red pen"><span class="d">9</span><span class="l">red pen</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="9" style="grid-area: 2 / 3" aria-label="KP9: redo"><span class="d">9</span><span class="l">redo</span><span class="led"></span></button>
             <div class="key ghost" style="grid-area: 2 / 4 / 4 / 5" aria-hidden="true"><span class="d">+</span></div>
 
-            <button type="button" class="key" data-k="4" style="grid-area: 3 / 1" aria-label="KP4: dark pen"><span class="d">4</span><span class="l">dark pen</span><span class="led"></span></button>
-            <button type="button" class="key" data-k="5" style="grid-area: 3 / 2" aria-label="KP5: highlighter"><span class="d">5</span><span class="l">highlighter</span><span class="led"></span></button>
-            <button type="button" class="key" data-k="6" style="grid-area: 3 / 3" aria-label="KP6: eraser"><span class="d">6</span><span class="l">eraser</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="4" style="grid-area: 3 / 1" aria-label="KP4: highlighter"><span class="d">4</span><span class="l">highlighter</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="5" style="grid-area: 3 / 2" aria-label="KP5: eraser"><span class="d">5</span><span class="l">eraser</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="6" style="grid-area: 3 / 3" aria-label="KP6: undo"><span class="d">6</span><span class="l">undo</span><span class="led"></span></button>
 
-            <button type="button" class="key on pulse" data-k="1" style="grid-area: 4 / 1" aria-label="KP1: show or hide the overlay"><span class="d">1</span><span class="l">overlay</span><span class="led"></span></button>
-            <button type="button" class="key" data-k="2" style="grid-area: 4 / 2" aria-label="KP2: undo"><span class="d">2</span><span class="l">undo</span><span class="led"></span></button>
-            <button type="button" class="key" data-k="3" style="grid-area: 4 / 3" aria-label="KP3: redo"><span class="d">3</span><span class="l">redo</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="1" style="grid-area: 4 / 1" aria-label="KP1: blue pen"><span class="d">1</span><span class="l">blue pen</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="2" style="grid-area: 4 / 2" aria-label="KP2: red pen"><span class="d">2</span><span class="l">red pen</span><span class="led"></span></button>
+            <button type="button" class="key" data-k="3" style="grid-area: 4 / 3" aria-label="KP3: dark pen"><span class="d">3</span><span class="l">dark pen</span><span class="led"></span></button>
             <div class="key ghost" style="grid-area: 4 / 4 / 6 / 5" aria-hidden="true"><span class="d">↵</span></div>
 
-            <button type="button" class="key" data-k="0" style="grid-area: 5 / 1 / 6 / 3" aria-label="KP0: blue pen"><span class="d">0</span><span class="l">blue pen</span><span class="led"></span></button>
+            <button type="button" class="key on pulse" data-k="0" style="grid-area: 5 / 1 / 6 / 3" aria-label="KP0: show or hide the overlay"><span class="d">0</span><span class="l">overlay</span><span class="led"></span></button>
             <div class="key ghost" style="grid-area: 5 / 3" aria-hidden="true"><span class="d">.</span></div>
           </div>
           <div class="readout"><span class="ps">›</span><span id="ro"></span><span class="caret"></span></div>
@@ -608,20 +608,20 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
           <div class="display" id="display">
             <canvas id="desk"></canvas>
             <canvas id="ink" class="ink"></canvas>
-            <div class="badge" id="badge">overlay hidden · <b>press 1</b> to draw</div>
+            <div class="badge" id="badge">overlay hidden · <b>press 0</b> to draw</div>
             <div class="chip" id="chip"></div>
             <!-- the wayscriber toolbar: top-left, stretches toward the middle -->
             <div class="wsbar" id="wsbar" role="toolbar" aria-label="wayscriber tool bar">
-              <button type="button" class="tb" id="tbPen"  title="Pen (KP9 red · KP0 blue · KP4 dark)"><i data-lucide="pen"></i></button>
-              <button type="button" class="tb" id="tbHl"   title="Highlighter (KP5)"><i data-lucide="highlighter"></i></button>
-              <button type="button" class="tb" id="tbEr"   title="Eraser (KP6)"><i data-lucide="eraser"></i></button>
+              <button type="button" class="tb" id="tbPen"  title="Pen (KP1 blue · KP2 red · KP3 dark)"><i data-lucide="pen"></i></button>
+              <button type="button" class="tb" id="tbHl"   title="Highlighter (KP4)"><i data-lucide="highlighter"></i></button>
+              <button type="button" class="tb" id="tbEr"   title="Eraser (KP5)"><i data-lucide="eraser"></i></button>
               <span class="dv" aria-hidden="true"></span>
-              <button type="button" class="cd" data-tool="red"  title="Red pen (KP9)"  aria-label="Red pen"></button>
-              <button type="button" class="cd" data-tool="blue" title="Blue pen (KP0)" aria-label="Blue pen"></button>
-              <button type="button" class="cd" data-tool="dark" title="Dark pen (KP4)" aria-label="Dark pen"></button>
+              <button type="button" class="cd" data-tool="red"  title="Red pen (KP2)"  aria-label="Red pen"></button>
+              <button type="button" class="cd" data-tool="blue" title="Blue pen (KP1)" aria-label="Blue pen"></button>
+              <button type="button" class="cd" data-tool="dark" title="Dark pen (KP3)" aria-label="Dark pen"></button>
               <span class="dv" aria-hidden="true"></span>
-              <button type="button" class="tb" id="tbUndo"  title="Undo (KP2)"><i data-lucide="undo-2"></i></button>
-              <button type="button" class="tb" id="tbRedo"  title="Redo (KP3)"><i data-lucide="redo-2"></i></button>
+              <button type="button" class="tb" id="tbUndo"  title="Undo (KP6)"><i data-lucide="undo-2"></i></button>
+              <button type="button" class="tb" id="tbRedo"  title="Redo (KP9)"><i data-lucide="redo-2"></i></button>
               <button type="button" class="tb" id="tbClear" title="Clear canvas (KP7)"><i data-lucide="trash-2"></i></button>
             </div>
           </div>
@@ -632,7 +632,7 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
         </div>
       </div>
 
-      <p class="fineprint rv" style="--d:.1s">Press <b>1</b> (or <b>Esc</b>) again and <b>the whole overlay hides</b>, ink and toolbar, so your apps are back. To <b>keep your ink on screen</b> while you work in the apps below, use <b>light passthrough</b> (KP8): scribble over the chart, then click it: the ink dims and <b>the click lands on the app below</b>. Even the toolbar is click-through, but <b>KP8 always works</b>, because it's keyd-bound. And the wiring outlives the overlay: <b>KP1 &amp; KP8 stay bound</b> until you turn Drawing Mode off. That stops wayscriber too; the ink comes back on the next start. Flip the switch above the pad to feel both sides. The eraser really erases, undo really undoes, and <b>KP2</b> brings a cleared canvas back.</p>
+      <p class="fineprint rv" style="--d:.1s">Press <b>0</b> (or <b>Esc</b>) again and <b>the whole overlay hides</b>, ink and toolbar, so your apps are back. To <b>keep your ink on screen</b> while you work in the apps below, use <b>light passthrough</b> (KP8): scribble over the chart, then click it: the ink dims and <b>the click lands on the app below</b>. Even the toolbar is click-through, but <b>KP8 always works</b>, because it's keyd-bound. And the wiring outlives the overlay: <b>KP0 &amp; KP8 stay bound</b> until you turn Drawing Mode off. That stops wayscriber too; the ink comes back on the next start. Flip the switch above the pad to feel both sides. The eraser really erases, undo really undoes, and <b>KP6</b> brings a cleared canvas back.</p>
     </div>
   </section>
 
@@ -643,21 +643,21 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
       <div class="map-table rv" style="--d:.06s">
         <div class="map-head"><span>key</span><span>action</span><span>detail</span><span>binding</span></div>
 
-        <div class="map-row" data-k="1" role="button" tabindex="0"><div class="map-key">1</div><div class="map-act">Show / hide the drawing overlay<small>--daemon-toggle</small></div><div class="map-det">overlay on/off · ink and toolbar · esc works too</div><span class="tag keyd">keyd</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="2" role="button" tabindex="0"><div class="map-key">2</div><div class="map-act">Undo</div><div class="map-det">full stroke stack</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="3" role="button" tabindex="0"><div class="map-key">3</div><div class="map-act">Redo</div><div class="map-det">mirror of the undo stack</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="4" role="button" tabindex="0"><div class="map-key">4</div><div class="map-act">Dark pen</div><div class="map-det"><span class="sw" style="background:#222222"></span>#222222 · size 3</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="5" role="button" tabindex="0"><div class="map-key">5</div><div class="map-act">Highlighter</div><div class="map-det"><span class="sw" style="background:#ffff00"></span>#ffff00 · size 20 · 15% opacity</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="6" role="button" tabindex="0"><div class="map-key">6</div><div class="map-act">Eraser</div><div class="map-det"><span class="sw er"></span>size 50, wayscriber's hard cap</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="7" role="button" tabindex="0"><div class="map-key">7</div><div class="map-act">Clear canvas</div><div class="map-det">undoable, KP2 restores it</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="1" role="button" tabindex="0"><div class="map-key">1</div><div class="map-act">Blue pen</div><div class="map-det"><span class="sw" style="background:#0000ff"></span>#0000ff · size 5</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="2" role="button" tabindex="0"><div class="map-key">2</div><div class="map-act">Red pen</div><div class="map-det"><span class="sw" style="background:#ff0000"></span>#ff0000 · size 5 · the default</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="3" role="button" tabindex="0"><div class="map-key">3</div><div class="map-act">Dark pen</div><div class="map-det"><span class="sw" style="background:#222222"></span>#222222 · size 3</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="4" role="button" tabindex="0"><div class="map-key">4</div><div class="map-act">Highlighter</div><div class="map-det"><span class="sw" style="background:#ffff00"></span>#ffff00 · size 20 · 15% opacity</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="5" role="button" tabindex="0"><div class="map-key">5</div><div class="map-act">Eraser</div><div class="map-det"><span class="sw er"></span>size 50, wayscriber's hard cap</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="6" role="button" tabindex="0"><div class="map-key">6</div><div class="map-act">Undo</div><div class="map-det">full stroke stack</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="7" role="button" tabindex="0"><div class="map-key">7</div><div class="map-act">Clear canvas</div><div class="map-det">undoable, KP6 restores it</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
         <div class="map-row" data-k="8" role="button" tabindex="0"><div class="map-key">8</div><div class="map-act">Light passthrough<small>--light-toggle</small></div><div class="map-det">ink dims · clicks fall through to your apps</div><span class="tag keyd">keyd</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="9" role="button" tabindex="0"><div class="map-key">9</div><div class="map-act">Red pen</div><div class="map-det"><span class="sw" style="background:#ff0000"></span>#ff0000 · size 5 · the default</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
-        <div class="map-row" data-k="0" role="button" tabindex="0"><div class="map-key">0</div><div class="map-act">Blue pen</div><div class="map-det"><span class="sw" style="background:#0000ff"></span>#0000ff · size 5</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="9" role="button" tabindex="0"><div class="map-key">9</div><div class="map-act">Redo</div><div class="map-det">mirror of the undo stack</div><span class="tag ov">overlay</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
+        <div class="map-row" data-k="0" role="button" tabindex="0"><div class="map-key">0</div><div class="map-act">Show / hide the drawing overlay<small>--daemon-toggle</small></div><div class="map-det">overlay on/off · ink and toolbar · esc works too</div><span class="tag keyd">keyd</span><i data-lucide="mouse-pointer-click" class="try"></i></div>
       </div>
 
       <div class="map-foot rv" style="--d:.1s">
-        <p>The numpad only does this while Drawing Mode is on. Before that, and after you turn it off, it types normal digits. <b>Keep Num Lock on</b>: without it KP2-KP7/9/0 send arrows and Home/End, not digits. keyd bindings are added on start and reset on stop, so number entry is never permanently lost.</p>
-        <p><b>keyd</b> rows are remapped globally while Drawing Mode is on: KP1 &amp; KP8 work even with the overlay hidden (and with Num Lock off), and only turning Drawing Mode off hands them back. <b>overlay</b> rows aren't remapped at all: they're wayscriber's own <code class="ic">[keybindings]</code>, which only fire while the overlay is shown and holds keyboard focus.</p>
+        <p>The numpad only does this while Drawing Mode is on. Before that, and after you turn it off, it types normal digits. <b>Keep Num Lock on</b>: without it KP1-KP7/9 send arrows and Home/End, not digits. keyd bindings are added on start and reset on stop, so number entry is never permanently lost.</p>
+        <p><b>keyd</b> rows are remapped globally while Drawing Mode is on: KP0 &amp; KP8 work even with the overlay hidden (and with Num Lock off), and only turning Drawing Mode off hands them back. <b>overlay</b> rows aren't remapped at all: they're wayscriber's own <code class="ic">[keybindings]</code>, which only fire while the overlay is shown and holds keyboard focus.</p>
       </div>
     </div>
   </section>
@@ -704,9 +704,9 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
       </div>
 
       <div class="notes rv" style="--d:.08s">
-        <div class="note"><h4>Use it</h4><p>No terminal needed. Open the app menu, click <b>Drawing Mode</b>: the wayscriber tray icon appears and a popup says to press 1. Press <kbd>1</kbd> to draw, <kbd>1</kbd> again when done. Click Drawing Mode again to turn it off. Right-click offers Turn On / Turn Off, and it can be pinned to the panel. It never starts on its own and turns itself off at logout.</p></div>
+        <div class="note"><h4>Use it</h4><p>No terminal needed. Open the app menu, click <b>Drawing Mode</b>: the wayscriber tray icon appears and a popup says to press 0. Press <kbd>0</kbd> to draw, <kbd>0</kbd> again when done. Click Drawing Mode again to turn it off. Right-click offers Turn On / Turn Off, and it can be pinned to the panel. It never starts on its own and turns itself off at logout.</p></div>
         <div class="note"><h4>Built for screen recording</h4><p>Only the drawing shows. This repo's config hides wayscriber's status bar, zoom chip and floating board badge, and turns off its tips, capability warnings, preset toasts, presenter toast and update notifications. Set any back to <code class="ic">true</code> in the repo's <code class="ic">config.toml</code> and re-run install. Drawing Mode's own on/off popups stay on; they appear only when switching, never while drawing (<code class="ic">POPUPS=</code> in the switch script).</p></div>
-        <div class="note"><h4>Customize</h4><p>Edit <b>this repo's</b> <code class="ic">config.toml</code>, then run <code class="ic">./wayscriber.sh install</code> to push it and restart Drawing Mode. Direct edits to <code class="ic">~/.config/wayscriber/config.toml</code> get replaced (after a backup). The <code class="ic">[presets.slot_1..5]</code> blocks decide what KP9 / KP0 / KP4 / KP5 / KP6 select (tool, color, size, <code class="ic">marker_opacity</code>…); the <code class="ic">[keybindings]</code> block remaps KP2-KP7/9/0. KP1 and KP8 are the exception: they're the keyd bindings, set under <code class="ic">keys-on</code> in <code class="ic">generate_toggle()</code> in wayscriber.sh, and limited to the ten action names wayscriber's TrayAction actually accepts.</p></div>
+        <div class="note"><h4>Customize</h4><p>Edit <b>this repo's</b> <code class="ic">config.toml</code>, then run <code class="ic">./wayscriber.sh install</code> to push it and restart Drawing Mode. Direct edits to <code class="ic">~/.config/wayscriber/config.toml</code> get replaced (after a backup). The <code class="ic">[presets.slot_1..5]</code> blocks decide what KP1 / KP2 / KP3 / KP4 / KP5 select (tool, color, size, <code class="ic">marker_opacity</code>…); the <code class="ic">[keybindings]</code> block remaps KP1-KP7/9. KP0 and KP8 are the exception: they're the keyd bindings, set under <code class="ic">keys-on</code> in <code class="ic">generate_toggle()</code> in wayscriber.sh, and limited to the ten action names wayscriber's TrayAction actually accepts.</p></div>
         <div class="note"><h4>Uninstall</h4><p><code class="ic">./wayscriber.sh uninstall</code> asks first, turns Drawing Mode off, then removes the Drawing Mode app (launcher, switch, systemd unit), the keyd config, the bridge script and only what its own receipt file shows it installed. A keyd setup you already had survives untouched. wayscriber itself and its runtime libraries stay on purpose; the script prints the exact commands to remove those too, instead of running them.</p></div>
       </div>
     </div>
@@ -984,7 +984,7 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
             <li class="cap" data-f="light" tabindex="0"><i data-lucide="sun-dim"></i><div><h4>light passthrough <span class="kp-tag">kp8</span></h4><p>clicks pass through the overlay while your drawings stay visible: work under your notes. needs a layer-shell compositor; KDE Plasma has it.</p></div></li>
             <li class="cap" data-f="capture" tabindex="0"><i data-lucide="scan-text"></i><div><h4>capture &amp; ocr</h4><p>region, window or full screen to the clipboard or a png. select on-screen text, run ocr, copy the result. The overlay stays open.</p></div></li>
             <li class="cap" data-f="hud" tabindex="0"><i data-lucide="keyboard"></i><div><h4>input hud</h4><p>ctrl+shift+k paints your keystrokes and clicks on the screen, for demos and screencasts. held keys collapse into a ×n counter.</p></div></li>
-            <li class="cap" data-f="sessions" tabindex="0"><i data-lucide="history"></i><div><h4>sessions that survive <span class="kp-tag">kp1</span></h4><p>boards, undo history and tool state persist per monitor across restarts: compressed, backed up, auto-recovered after a crash.</p></div></li>
+            <li class="cap" data-f="sessions" tabindex="0"><i data-lucide="history"></i><div><h4>sessions that survive <span class="kp-tag">kp0</span></h4><p>boards, undo history and tool state persist per monitor across restarts: compressed, backed up, auto-recovered after a crash.</p></div></li>
           </ol>
         </div>
       </div>
@@ -996,7 +996,7 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
           <div><h4>select, move &amp; paste</h4><p>move, duplicate and restack objects, edit their properties, paste png/jpeg straight from the clipboard onto the canvas.</p></div>
           <div><h4>tablet, pen &amp; touch</h4><p>native zwp_tablet_v2 tablet support with pen pressure, on by default. a mouse and a touchscreen also work.</p></div>
           <div><h4>multi-monitor</h4><p>a shortcut hops the overlay between outputs, toolbars follow the active display, and each output keeps its own session.</p></div>
-          <div><h4>searchable help</h4><p>f1 opens clickable, searchable help for every shortcut. esc hides the overlay, same deal as kp1 here.</p></div>
+          <div><h4>searchable help</h4><p>f1 opens clickable, searchable help for every shortcut. esc hides the overlay, same deal as kp0 here.</p></div>
           <div><h4>make it yours</h4><p>~130 rebindable actions, dark and light chrome, reduced motion, quick colors, presets 1-5. hand-edit the commented toml, or the gtk4 configurator (f11 in the overlay).</p></div>
           <div><h4>tray, cli &amp; pdf</h4><p>a tray icon, <code class="ic">--daemon-action</code> flags for scripting, and boards that export as multi-page pdf.</p></div>
         </div>
@@ -1021,7 +1021,7 @@ footer{border-top:1px solid var(--line);margin-top:110px;padding:60px 0 0}
           <div class="crow"><span>screen eyedropper</span><span class="keys"><kbd>i</kbd></span></div>
           <div class="crow"><span>undo / redo</span><span class="keys"><kbd>ctrl</kbd><i>+</i><kbd>z</kbd><i>/</i><kbd>ctrl</kbd><i>+</i><kbd>y</kbd></span></div>
         </div>
-        <p class="ctrl-note">these are wayscriber's own keys, read while the overlay holds focus: <b>exactly the mechanism this repo borrows for kp2-kp7/9/0</b>. the numpad keeps ten of them; the rest stay right where they are.</p>
+        <p class="ctrl-note">these are wayscriber's own keys, read while the overlay holds focus: <b>exactly the mechanism this repo borrows for kp1-kp7/9</b>. the numpad keeps ten of them; the rest stay right where they are.</p>
       </div>
 
       <!-- compatibility -->
@@ -1075,8 +1075,8 @@ ui_animation_fps = 60     # smoother UI effects"><i data-lucide="copy" class="ic
       <div class="sec-head rv"><span class="sec-idx">05</span><h2 class="sec-title">If something's off.</h2><span class="sec-note">seven known shapes of "off"</span></div>
       <div class="rv" style="--d:.06s">
         <div class="tr-row"><h4>"needs a Wayland session"</h4><p>You're in KDE's X11 session (<code class="ic">XDG_SESSION_TYPE=x11</code>). Log out, pick <b>Plasma (Wayland)</b> in SDDM, log back in. wayscriber's layer-shell overlay cannot appear on X11; <code class="ic">./wayscriber.sh status</code> prints the detected session.</p></div>
-        <div class="tr-row"><h4>Numpad keys do nothing</h4><p>Check <b>Num Lock is on</b> (KP2-KP7/9/0 need it). Watch the raw layer with <code class="ic">sudo keyd monitor</code>: press the keys and confirm keyd sees <code class="ic">kp0-kp9</code>. Then <code class="ic">./wayscriber.sh status</code> to check keyd is up and Drawing Mode is on.</p></div>
-        <div class="tr-row"><h4>Overlay won't show after KP1</h4><p><code class="ic">journalctl --user -u wayscriber-numpad.service -n 50</code> holds wayscriber's log. Also check <code class="ic">./wayscriber.sh status</code>.</p></div>
+        <div class="tr-row"><h4>Numpad keys do nothing</h4><p>Check <b>Num Lock is on</b> (KP1-KP7/9 need it). Watch the raw layer with <code class="ic">sudo keyd monitor</code>: press the keys and confirm keyd sees <code class="ic">kp0-kp9</code>. Then <code class="ic">./wayscriber.sh status</code> to check keyd is up and Drawing Mode is on.</p></div>
+        <div class="tr-row"><h4>Overlay won't show after KP0</h4><p><code class="ic">journalctl --user -u wayscriber-numpad.service -n 50</code> holds wayscriber's log. Also check <code class="ic">./wayscriber.sh status</code>.</p></div>
         <div class="tr-row"><h4>Drawing Mode didn't start</h4><p>Nothing was changed; the numpad still types numbers. <code class="ic">./wayscriber.sh start</code> (or the popup) names the likely cause: another wayscriber already running (exit 75), keyd not running, or no Wayland session. Otherwise log out and back in (e.g. just added to the <code class="ic">keyd</code> group). A hung start or stop gives up after 20 s / 5 s.</p></div>
         <div class="tr-row"><h4>Overlay looks blurry on KDE</h4><p>The "Better Blur" desktop effect blurs layer-shell surfaces, a documented wayscriber × KWin interaction, not a bug in this wiring. The fix is the window-rule exclusion in wayscriber's own troubleshooting docs.</p></div>
         <div class="tr-row"><h4>keyd itself crashed</h4><p><code class="ic">systemctl status keyd</code> · <code class="ic">journalctl -u keyd</code>. This wiring only ever calls <code class="ic">keyd bind</code> / <code class="ic">keyd bind reset</code>, and the reset runs when Drawing Mode stops, even after a crash, so it never leaves the daemon in a half-bound state.</p></div>
@@ -1092,7 +1092,7 @@ ui_animation_fps = 60     # smoother UI effects"><i data-lucide="copy" class="ic
     <div class="ft">
       <div>
         <div class="mini-pad" aria-hidden="true">
-          <span>7</span><span>8</span><span>9</span><span>4</span><span>5</span><span>6</span><span class="r">1</span><span>2</span><span>3</span><span>0</span><span class="y">✎</span>
+          <span>7</span><span>8</span><span>9</span><span>4</span><span>5</span><span>6</span><span>1</span><span>2</span><span>3</span><span class="r">0</span><span class="y">✎</span>
         </div>
         <p class="ft-tag"><b>wayscriber</b> does the drawing.<br><b>keyd</b> does the listening.<br>The numpad does the rest.</p>
       </div>
@@ -1119,9 +1119,9 @@ ui_animation_fps = 60     # smoother UI effects"><i data-lucide="copy" class="ic
 /* =========================================================
    wayscriber-numpad: landing page demo
    a faithful mini reimplementation of the wiring:
-   KP1/KP8 = "keyd" (live the whole time Drawing Mode is on),
+   KP0/KP8 = "keyd" (live the whole time Drawing Mode is on),
    the rest only act while the overlay is shown.
-   KP1 shows/hides the whole overlay, ink included
+   KP0 shows/hides the whole overlay, ink included
    (esc works too, like the real thing). KP8 = light
    passthrough: ink stays visible, dims, AND clicks fall through.
    ========================================================= */
@@ -1133,8 +1133,8 @@ const TOOLS = {
   hl:     { label:'highlighter',  color:'#FFFF00', size:20, ui:'#ffd52e', kind:'hl'     },
   eraser: { label:'eraser',       color:null,      size:50, ui:'#e8e9ec', kind:'eraser' }
 };
-const KEY      = { '1':'overlay','2':'undo','3':'redo','4':'dark','5':'hl','6':'eraser','7':'clear','8':'dim','9':'red','0':'blue' };
-const TOOLKEY  = { red:'9', blue:'0', dark:'4', hl:'5', eraser:'6' };
+const KEY      = { '1':'blue','2':'red','3':'dark','4':'hl','5':'eraser','6':'undo','7':'clear','8':'dim','9':'redo','0':'overlay' };
+const TOOLKEY  = { blue:'1', red:'2', dark:'3', hl:'4', eraser:'5' };
 const BASE_W   = 760;
 
 const state = { wiring:true, overlay:false, dim:false };
@@ -1395,7 +1395,7 @@ function digitFeedback(k){
 }
 function updateBadge(){
   badgeEl.innerHTML = state.wiring
-    ? 'overlay hidden · <b>press 1</b> to draw'
+    ? 'overlay hidden · <b>press 0</b> to draw'
     : 'Drawing Mode off · numpad types digits';
 }
 function showOverlay(auto){
@@ -1403,7 +1403,7 @@ function showOverlay(auto){
   numpad.classList.add('armed');
   disp.classList.add('on');
   screenEl.classList.add('armed');
-  keyEls['1'].classList.remove('pulse');
+  keyEls['0'].classList.remove('pulse');
   ledTxt.textContent = 'overlay on';
   setTool(cur);
   if (!auto) toast('overlay shown · the toolbar is clickable · esc hides it too');
@@ -1413,12 +1413,12 @@ function hideOverlay(auto){
   numpad.classList.remove('armed');
   disp.classList.remove('on');
   screenEl.classList.remove('armed');
-  if (state.wiring) keyEls['1'].classList.add('pulse');
+  if (state.wiring) keyEls['0'].classList.add('pulse');
   chip.style.display = 'none';
   ledTxt.textContent = 'overlay off';
   if (!auto){
-    readout('<b>kp1</b> → overlay hidden · <span class="tt">ink and toolbar off screen</span>');
-    toast('overlay hidden · press 1 to bring it back');
+    readout('<b>kp0</b> → overlay hidden · <span class="tt">ink and toolbar off screen</span>');
+    toast('overlay hidden · press 0 to bring it back');
   }
 }
 function toggleOverlay(auto){
@@ -1456,22 +1456,22 @@ function updateBarActions(){
   tbClear.disabled = isBlank();
 }
 function doUndo(){
-  if (!undoStack.length){ readout('<b>kp2</b> → undo <span class="dm">· nothing left</span>'); toast('nothing to undo'); return; }
+  if (!undoStack.length){ readout('<b>kp6</b> → undo <span class="dm">· nothing left</span>'); toast('nothing to undo'); return; }
   redoStack.push(undoStack.pop()); rebuild(); updateBarActions();
-  readout('<b>kp2</b> → undo <span class="dm">· '+undoStack.length+' step'+(undoStack.length===1?'':'s')+' under</span>');
+  readout('<b>kp6</b> → undo <span class="dm">· '+undoStack.length+' step'+(undoStack.length===1?'':'s')+' under</span>');
   toast('undo');
 }
 function doRedo(){
-  if (!redoStack.length){ readout('<b>kp3</b> → redo <span class="dm">· nothing to redo</span>'); toast('nothing to redo'); return; }
+  if (!redoStack.length){ readout('<b>kp9</b> → redo <span class="dm">· nothing to redo</span>'); toast('nothing to redo'); return; }
   undoStack.push(redoStack.pop()); rebuild(); updateBarActions();
-  readout('<b>kp3</b> → redo <span class="dm">· '+redoStack.length+' step'+(redoStack.length===1?'':'s')+' left</span>');
+  readout('<b>kp9</b> → redo <span class="dm">· '+redoStack.length+' step'+(redoStack.length===1?'':'s')+' left</span>');
   toast('redo');
 }
 function doClear(){
   if (isBlank()){ toast('canvas already blank'); readout('<b>kp7</b> → clear <span class="dm">· already blank</span>'); return; }
   undoStack.push({ t:'c' }); redoStack = []; rebuild(); updateBarActions();
-  readout('<b>kp7</b> → canvas cleared <span class="dm">· kp2 brings it back</span>');
-  toast('canvas cleared · kp2 restores it');
+  readout('<b>kp7</b> → canvas cleared <span class="dm">· kp6 brings it back</span>');
+  toast('canvas cleared · kp6 restores it');
 }
 
 function handleAction(k){
@@ -1500,14 +1500,14 @@ function toggleWiring(){
   if (!state.wiring && state.dim){ state.dim = false; disp.classList.remove('dimmed'); }
   disp.classList.toggle('stopped', !state.wiring);
   if (state.wiring){
-    keyEls['1'].classList.add('on');
+    keyEls['0'].classList.add('on');
     keyEls['8'].classList.add('on');
-    if (!state.overlay) keyEls['1'].classList.add('pulse');
-    readout('<b>start</b> → wayscriber up, ink restored · kp1 &amp; kp8 live again, press 1');
-    toast('Drawing Mode is on. Press 1 to start drawing');
+    if (!state.overlay) keyEls['0'].classList.add('pulse');
+    readout('<b>start</b> → wayscriber up, ink restored · kp0 &amp; kp8 live again, press 0');
+    toast('Drawing Mode is on. Press 0 to start drawing');
   } else {
-    keyEls['1'].classList.remove('pulse');
-    keyEls['1'].classList.remove('on');
+    keyEls['0'].classList.remove('pulse');
+    keyEls['0'].classList.remove('on');
     keyEls['8'].classList.remove('on');
     readout('<b>stop</b> → wayscriber stopped · keyd bindings reset · every key types digits');
     toast('Drawing Mode is off. Ink saved for the next start');
@@ -1847,7 +1847,7 @@ setTool('red');
 updateBarActions();
 wireUpdate();
 updateBadge();
-readout('<b>kp1</b> → press to show the overlay');
+readout('<b>kp0</b> → press to show the overlay');
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawDesktop());
 </script>
 </body>

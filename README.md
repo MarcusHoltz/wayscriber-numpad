@@ -34,9 +34,9 @@
 
 ## 👍 Overview
 
-Turn on **Drawing Mode** from the app menu, press **1** on the number pad,
+Turn on **Drawing Mode** from the app menu, press **0** on the number pad,
 and draw over anything on screen. The other number pad keys pick a pen,
-highlighter or eraser, and undo, redo or clear. Press **1** again to get
+highlighter or eraser, and undo, redo or clear. Press **0** again to get
 back to your apps. Turn Drawing Mode off and the number pad types numbers
 again.
 
@@ -117,9 +117,9 @@ The first install compiles wayscriber, which takes several minutes.
 
 1. Open the app menu, type **Drawing Mode** and click it. A popup confirms
    it is on, and the wayscriber icon appears in the system tray.
-2. Press **1** on the number pad to show the drawing layer. Draw with the
+2. Press **0** on the number pad to show the drawing layer. Draw with the
    mouse.
-3. Press **1** again to hide the drawing layer and use your apps normally.
+3. Press **0** again to hide the drawing layer and use your apps normally.
 4. Click **Drawing Mode** again to turn it off.
 
 - **Keep Num Lock on.** With Num Lock off, the tool keys send arrow keys
@@ -137,35 +137,36 @@ The first install compiles wayscriber, which takes several minutes.
 ```text
   ┌────────┬────────┬────────┐
   │   7    │   8    │   9    │
-  │ clear  │ light  │  red   │
+  │ clear  │ light  │  redo  │
   ├────────┼────────┼────────┤
   │   4    │   5    │   6    │
-  │  dark  │ hilite │ eraser │
+  │ hilite │ eraser │  undo  │
   ├────────┼────────┼────────┤
   │   1    │   2    │   3    │
-  │  draw  │  undo  │  redo  │
+  │  blue  │  red   │  dark  │
   ├────────┴────────┼────────┤
   │        0        │   .    │
-  │      blue       │        │
+  │      draw       │        │
   └─────────────────┴────────┘
 ```
 
 | Key | Action |
 |-----|--------|
-| 1 | Show or hide the drawing layer |
-| 2 | Undo |
-| 3 | Redo |
-| 4 | Dark pen (`#222222`, size 3) |
-| 5 | Yellow highlighter (`#FFFF00`, size 20, see-through) |
-| 6 | Eraser (size 50) |
+| 1 | Blue pen (`#0000FF`, size 5) |
+| 2 | Red pen (`#FF0000`, size 5) |
+| 3 | Dark pen (`#222222`, size 3) |
+| 4 | Yellow highlighter (`#FFFF00`, size 20, see-through) |
+| 5 | Eraser (size 50) |
+| 6 | Undo |
 | 7 | Clear the screen |
 | 8 | Light passthrough: ink dims and clicks go to the app underneath |
-| 9 | Red pen (`#FF0000`, size 5), the default |
-| 0 | Blue pen (`#0000FF`, size 5) |
+| 9 | Redo |
+| 0 | Show or hide the drawing layer |
 
+- Keys 1-5 are wayscriber's default preset keys.
 - A tool stays selected until you pick another.
-- Keys 1 and 8 work whenever Drawing Mode is on.
-- Keys 2-7, 9 and 0 only act while the drawing layer is showing.
+- Keys 0 and 8 work whenever Drawing Mode is on.
+- Keys 1-7 and 9 only act while the drawing layer is showing.
 - With Drawing Mode off, every number pad key types its normal digit.
 
 
@@ -205,8 +206,8 @@ Run these from the `wayscriber-numpad` folder:
 
 Tools live in this repo's `config.toml`:
 
-- `[presets.slot_1]` to `[presets.slot_5]` are the tools on keys 9, 0, 4, 5
-  and 6, in that order.
+- `[presets.slot_1]` to `[presets.slot_5]` are the tools on keys 1 to 5,
+  in that order.
 - `[keybindings]` sets which key does what: undo, redo, clear and the
   tools.
 
@@ -254,7 +255,9 @@ Drawing Mode shows a popup when it turns on or off, or fails to start. To
 silence them, set `POPUPS=false` near the top of
 `~/.local/bin/wayscriber-numpad`. Install leaves that file alone while the
 Drawing Mode app is complete. If the app's service or menu entry goes
-missing, install rewrites all three and the change is lost.
+missing, install rewrites all three and the change is lost. Install also
+rewrites that file if it still binds the old show/hide key (1), which
+resets `POPUPS`.
 
 The popups need the `notify-send` command, which install does not add. If
 no popups appear, install it: `libnotify-bin` on Debian and Ubuntu,
@@ -340,7 +343,7 @@ journalctl --user -u wayscriber-numpad.service -n 30
 ### Number pad keys do nothing
 
 - Check that Num Lock is on.
-- Press **1** first. Most keys only act while the drawing layer shows.
+- Press **0** first. Most keys only act while the drawing layer shows.
 - Run `sudo keyd monitor` (`sudo keyd.rvaiya monitor` on Debian and
   Ubuntu) and press the keys. It should print `kp0` to `kp9`. If it
   doesn't, keyd can't see your keyboard.
@@ -389,16 +392,16 @@ None of this is needed to use it.
 
 - **Drawing Mode** is a systemd user service,
   `~/.config/systemd/user/wayscriber-numpad.service`. Turning it on starts
-  `wayscriber --daemon` and binds number pad keys 1 and 8 with `keyd bind`.
+  `wayscriber --daemon` and binds number pad keys 0 and 8 with `keyd bind`.
   Turning it off, a crash, or logging out stops wayscriber and runs
   `keyd bind reset`, so the number pad is never left remapped. The service
   is not enabled, so it never starts on its own.
 - **The app menu entry** runs `~/.local/bin/wayscriber-numpad`, the on/off
   switch for that service.
-- **Keys 1 and 8** go through keyd, because they must work while the
+- **Keys 0 and 8** go through keyd, because they must work while the
   drawing layer is hidden. keyd runs as root, so it calls
   `~/.local/bin/wayscriber-ctl.sh`, which runs wayscriber as you.
-- **Keys 2-7, 9 and 0** are not touched by keyd. While the drawing layer
+- **Keys 1-7 and 9** are not touched by keyd. While the drawing layer
   shows, wayscriber has the keyboard and reads them through the
   `[keybindings]` in `config.toml`. wayscriber has no command-line way to
   trigger undo, redo or tool changes, so this is the only way to bind them.
